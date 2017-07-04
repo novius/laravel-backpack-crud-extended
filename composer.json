@@ -1,0 +1,16 @@
+{
+    "name": "novius/backpack-crud-extended",
+    "description": "This packages extends Backpack\\CRUD",
+    "type": "library",
+    "license": "AGPL v3",
+    "authors": [
+        {
+            "name": "Julien Guyomard",
+            "email": "guyomard@novius.fr"
+        }
+    ],
+    "require": {
+        "php": ">=7.0",
+        "backpack/crud": "^3.2"
+    }
+}
