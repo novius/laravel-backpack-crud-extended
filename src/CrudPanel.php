@@ -13,13 +13,11 @@ class CrudPanel extends BackpackCrudPanel
         parent::__construct();
     }
 
-
     /**
      * Set the lang file to use
      * Used all over the CRUD interface (header, add button, reorder button, breadcrumbs).
      *
-     * @param [string] Entity name, in singular. Ex: article
-     * @param [string] Entity name, in plural. Ex: articles
+     * @param [string] Dictionary path
      */
     public function setLangFile($path)
     {
@@ -27,12 +25,10 @@ class CrudPanel extends BackpackCrudPanel
     }
 
     /**
-     * Get the entity strings
+     * Get the lang file
      * Used all over the CRUD interface (header, add button, reorder button, breadcrumbs).
      *
-     * @param [string] Entity name, in singular. Ex: article
-     * @param [string] Entity name, in plural. Ex: articles
-     * @return [array]
+     * @return [string]
      */
     public function getLangFile()
     {
