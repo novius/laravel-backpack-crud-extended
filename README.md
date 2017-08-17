@@ -29,6 +29,8 @@ Novius\Backpack\CRUD\CrudServiceProvider::class,
 
 ## Usage
 
+### Field type
+
 Fields type can now be a classname:
 
 ```php?start_inline=1
@@ -36,4 +38,19 @@ $this->crud->addField([
     'name' => 'username',
     'label' => "My username",
     'type' => \Novius\Backpack\CRUD\Field\Truc::class,
-]);```
+]);
+```
+
+### Language / I18N
+
+Set a custom dictionary :
+```php?start_inline=1
+$this->crud->setLangFile('backpack::crud/movie');
+```
+
+This dictionary will then be used in the CRUD views.
+
+You can use it in your own views like this :
+```php?start_inline=1
+{{ trans($crud->getLangFile().'.add') }}
+```
