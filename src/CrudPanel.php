@@ -3,15 +3,15 @@
 namespace Novius\Backpack\CRUD;
 
 use \Backpack\CRUD\CrudPanel as BackpackCrudPanel;
+use Novius\Backpack\CRUD\PanelTraits\Boxes;
+use Novius\Backpack\CRUD\PanelTraits\BoxTabs;
 
 class CrudPanel extends BackpackCrudPanel
 {
-    protected $lang_file;
+    use Boxes;
+    use BoxTabs;
 
-    public function __construct()
-    {
-        parent::__construct();
-    }
+    protected $langFile;
 
     /**
      * Set the lang file to use
@@ -21,7 +21,7 @@ class CrudPanel extends BackpackCrudPanel
      */
     public function setLangFile($path)
     {
-        $this->lang_file = $path;
+        $this->langFile = $path;
     }
 
     /**
@@ -32,6 +32,6 @@ class CrudPanel extends BackpackCrudPanel
      */
     public function getLangFile()
     {
-        return $this->lang_file ?? 'backpack::crud';
+        return $this->langFile ?? 'backpack::crud';
     }
 }
