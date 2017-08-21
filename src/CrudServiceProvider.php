@@ -2,7 +2,7 @@
 
 namespace Novius\Backpack\CRUD;
 
-use \Backpack\CRUD\CrudServiceProvider as BackpackCrudServiceProvider;
+use Backpack\CRUD\CrudServiceProvider as BackpackCrudServiceProvider;
 
 class CrudServiceProvider extends BackpackCrudServiceProvider
 {
@@ -22,9 +22,8 @@ class CrudServiceProvider extends BackpackCrudServiceProvider
          * - vendor/backpack/crud/resources/views/foo.blade.php
          */
         $this->loadViewsFrom(resource_path('views/vendor/backpack/crud'), 'crud');
-        $this->loadViewsFrom(realpath(__DIR__.'/resources/views'), 'crud');
+        $this->loadViewsFrom(realpath(dirname(__DIR__).'/resources/views'), 'crud');
         parent::boot();
-
 
         /*
          * Add a new namespace "backpackcrud", to allow bypassing overrided views
@@ -33,12 +32,16 @@ class CrudServiceProvider extends BackpackCrudServiceProvider
          */
         $this->loadViewsFrom(realpath(dirname(__DIR__, 3).'/backpack/crud/src/resources/views'), 'backpackcrud');
 
+        /*
+         * Publish overrided views
+         */
+        $this->publishes([dirname(__DIR__).'/resources/views' => resource_path('views/vendor/backpack/crud')], 'views');
 
         /*
          * Overrides original CrudPanel
          * Now, Novius\Backpack\CRUD\CrudPanel is automatically used by all backpack controllers
          */
-        app()->bind(\Backpack\CRUD\CrudPanel::class, function() {
+        app()->bind(\Backpack\CRUD\CrudPanel::class, function () {
             return new CrudPanel();
         });
     }

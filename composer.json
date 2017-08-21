@@ -1,21 +1,49 @@
 {
-    "name": "novius/backpack-crud-extended",
-    "description": "This packages extends Backpack\\CRUD",
+    "name": "novius/laravel-backpack-crud-extended",
+    "description": "This package extends Laravel Backpack\\CRUD",
+    "keywords": [
+        "Novius",
+        "Laravel",
+        "Backpack",
+        "CRUD"
+    ],
     "type": "library",
     "license": "AGPL v3",
     "authors": [
         {
             "name": "Julien Guyomard",
             "email": "guyomard@novius.fr"
+        },
+        {
+            "name": "Pascal Viney",
+            "email": "viney@novius.fr"
         }
     ],
     "require": {
         "php": ">=7.0",
-        "backpack/crud": "^3.2"
+        "backpack/crud": "~3.2.15"
+    },
+    "require-dev": {
+        "friendsofphp/php-cs-fixer": "~2.4.0",
+        "phpunit/phpunit": "~5.7",
+        "orchestra/testbench": "~3.0"
     },
     "autoload": {
         "psr-4": {
             "Novius\\Backpack\\CRUD\\": "src"
         }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Novius\\Backpack\\CRUD\\Tests\\": "tests"
+        }
+    },
+    "scripts": {
+        "lint" : [
+            "php-cs-fixer fix --dry-run --config .php_cs -vv --diff  --allow-risky=yes"
+        ],
+        "test" : [
+            "phpunit"
+        ]
     }
 }

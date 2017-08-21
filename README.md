@@ -1,4 +1,4 @@
-# Backpack CRUD Extended
+# Laravel Backpack CRUD Extended
 
 This package extends [Backpack/CRUD](https://github.com/laravel-backpack/crud). See all features added bellow.
 
@@ -9,7 +9,14 @@ To do this without any modification on your controller or others package, this p
 
 ## Installation
 
-In `config/app.php`, replaces
+In your terminal:
+
+```
+composer require novius/laravel-backpack-crud-extended
+```
+
+
+In `config/app.php`, replace
 
 ```php?start_inline=1
 Backpack\CRUD\CrudServiceProvider::class,
@@ -19,6 +26,16 @@ by
 
 ```php?start_inline=1
 Novius\Backpack\CRUD\CrudServiceProvider::class,
+```
+
+
+### Publish views
+
+If you have already published backpack-crud views, this package will not work. 
+You have to remove views into `resources/views/vendor/backpack/crud/`, or to override them with:
+
+```
+php artisan vendor:publish --provider="Novius\Backpack\CRUD\CrudServiceProvider" --force
 ```
 
 
@@ -83,3 +100,31 @@ You can use it in your own views like this:
 ```php?start_inline=1
 {{ trans($crud->getLangFile().'.add') }}
 ```
+
+
+## Testing
+
+Run the tests with:
+
+```
+./test.sh
+```
+
+
+## Lint
+
+Run php-cs with:
+
+```
+./cs.sh
+```
+
+## Contributing
+
+Contributions are welcome!
+Leave an issue on Github, or create a Pull Request.
+
+
+## Licence
+
+This package is under [GNU Affero General Public License v3](http://www.gnu.org/licenses/agpl-3.0.html) or (at your option) any later version.

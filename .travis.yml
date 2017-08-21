@@ -1,0 +1,18 @@
+language: php
+
+php:
+  - 7.0
+
+sudo: false
+
+cache:
+    directories:
+      - $HOME/.composer/cache
+
+before_script:
+  - php -v
+  - composer install
+
+script:
+  - composer run-script lint
+  - composer run-script test

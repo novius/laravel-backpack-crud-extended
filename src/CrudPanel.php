@@ -2,7 +2,7 @@
 
 namespace Novius\Backpack\CRUD;
 
-use \Backpack\CRUD\CrudPanel as BackpackCrudPanel;
+use Backpack\CRUD\CrudPanel as BackpackCrudPanel;
 use Novius\Backpack\CRUD\PanelTraits\Boxes;
 use Novius\Backpack\CRUD\PanelTraits\BoxTabs;
 

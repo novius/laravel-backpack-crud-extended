@@ -12,6 +12,7 @@ trait BoxTabs
     public function boxTabExists(string $boxLabel, $tabLabel)
     {
         $tabs = $this->getBoxTabs($boxLabel);
+
         return in_array($tabLabel, $tabs);
     }
 
@@ -21,6 +22,7 @@ trait BoxTabs
         if (count($tabs)) {
             return last($tabs);
         }
+
         return false;
     }
 
@@ -42,8 +44,10 @@ trait BoxTabs
                 });
                 $fields_for_current_tab = $fields_for_current_tab->merge($fields_without_a_tab);
             }
+
             return $fields_for_current_tab;
         }
+
         return [];
     }
 
@@ -60,6 +64,7 @@ trait BoxTabs
                     $tabs[] = $value['tab'];
                 }
             });
+
         return $tabs;
     }
 }
