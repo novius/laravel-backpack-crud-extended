@@ -14,20 +14,20 @@ To do this without any modification on your controller or others package, this p
 
 In your terminal:
 
-```
+```bash
 composer require novius/laravel-backpack-crud-extended
 ```
 
 
 In `config/app.php`, replace
 
-```php?start_inline=1
+```php
 Backpack\CRUD\CrudServiceProvider::class,
 ```
 
 by
 
-```php?start_inline=1
+```php
 Novius\Backpack\CRUD\CrudServiceProvider::class,
 ```
 
@@ -37,7 +37,7 @@ Novius\Backpack\CRUD\CrudServiceProvider::class,
 If you have already published backpack-crud views, this package will not work. 
 You have to remove views into `resources/views/vendor/backpack/crud/`, or to override them with:
 
-```
+```sh
 php artisan vendor:publish --provider="Novius\Backpack\CRUD\CrudServiceProvider" --force
 ```
 
@@ -48,11 +48,11 @@ php artisan vendor:publish --provider="Novius\Backpack\CRUD\CrudServiceProvider"
 
 You can now split your create/edit inputs into multiple boxes.
 
-![backpack-crud-boxes](https://user-images.githubusercontent.com/1242207/29534032-bab29fec-86b4-11e7-9f2d-108350395975.png)
+![backpack-crud-boxes](https://user-images.githubusercontent.com/1242207/29535541-7d14ca06-86ba-11e7-8ba6-303b2b99924b.png)
 
 In order to use this feature, you just need to specify the box name for each of your fields.
 
-```php?start_inline=1
+```php
 $this->crud->addField([
     'name' => 'title',
     'label' => "My Title",
@@ -63,7 +63,7 @@ $this->crud->addField([
 
 You can also specify some options to each box:
 
-```php?start_inline=1
+```php
 $this->crud->setBoxOptions('Details', [
     'side' => true,         // Place this box on the right side?
     'class' => "box-info",  // CSS class to add to the div. Eg, <div class="box box-info">
@@ -78,7 +78,7 @@ If you forget to specify a tab name for a field, Backpack will place it in the l
 
 Fields type can now be a classname:
 
-```php?start_inline=1
+```php
 $this->crud->addField([
     'name' => 'username',
     'label' => "My username",
@@ -94,7 +94,7 @@ Your Field class must implement Field Contract.
 
 Set a custom dictionary for a specific crud:
 
-```php?start_inline=1
+```php
 $this->crud->setLangFile('backpack::crud/movie');
 ```
 
@@ -102,7 +102,7 @@ This dictionary will then be used in the CRUD views.
 
 You can use it in your own views like this:
 
-```php?start_inline=1
+```php
 {{ trans($crud->getLangFile().'.add') }}
 ```
 
@@ -111,7 +111,7 @@ You can use it in your own views like this:
 
 Run the tests with:
 
-```
+```bash
 ./test.sh
 ```
 
@@ -120,7 +120,7 @@ Run the tests with:
 
 Run php-cs with:
 
-```
+```bash
 ./cs.sh
 ```
 
