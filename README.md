@@ -1,15 +1,10 @@
 # Backpack CRUD Extended
 
-Ce package est juste un test.
+This package extends [Backpack/CRUD](https://github.com/laravel-backpack/crud). See all features added bellow.
 
-Son but ? Surcharger Backpack\CRUD sans aucune modification dans les autres packages (donc sans surcharger le controller, notamment).
-
-Pour le moment, il arrive à :
-* surcharger toutes les vues
-  * Si elle existe, une vue placée dans `ressources/views/` sera appelée en pririté
-  * Pour l'exemple, la vue `show_fields.blade.php` est surchargé pour permettre de mettre un nom de classe dans en "type" de champs.
-* surcharger `CrudPanel`
-  * Le controller appelle cette classe systématiquement, donc étendre cette classe permet de faire beaucoup de choses.
+To do this without any modification on your controller or others package, this package:
+- is able to override all Backpack/CRUD views;
+- extends CrudPanel class.
 
 
 ## Installation
@@ -27,9 +22,37 @@ Novius\Backpack\CRUD\CrudServiceProvider::class,
 ```
 
 
-## Usage
+## Usage & Features
 
-### Field type
+### CRUD Boxes
+
+You can now split your create/edit inputs into multiple boxes.
+
+In order to use this feature, you just need to specify the box name for each of your fields.
+
+```php?start_inline=1
+$this->crud->addField([
+    'name' => 'title',
+    'label' => "My Title",
+    'type' => 'text',
+    'box' => 'Box name here'
+]);
+```
+
+You can also specify some options to each box:
+
+```php?start_inline=1
+$this->crud->setBoxOptions('Details', [
+    'side' => true,         // Place this box on the right side?
+    'class' => "box-info",  // CSS class to add to the div. Eg, <div class="box box-info">
+    'collapsed' => true,    // Collapse this box by default?
+]);
+```
+
+If you forget to specify a tab name for a field, Backpack will place it in the last box.
+
+
+### Fields Drivers
 
 Fields type can now be a classname:
 
@@ -37,20 +60,26 @@ Fields type can now be a classname:
 $this->crud->addField([
     'name' => 'username',
     'label' => "My username",
-    'type' => \Novius\Backpack\CRUD\Field\Truc::class,
+    'type' => \My\Other\Package\Field\Foo::class,
 ]);
 ```
 
-### Language / I18N
+This allows you to propose new field types in external packages.
+Your Field class must implement Field Contract.
 
-Set a custom dictionary :
+
+### Language / i18n
+
+Set a custom dictionary for a specific crud:
+
 ```php?start_inline=1
 $this->crud->setLangFile('backpack::crud/movie');
 ```
 
 This dictionary will then be used in the CRUD views.
 
-You can use it in your own views like this :
+You can use it in your own views like this:
+
 ```php?start_inline=1
 {{ trans($crud->getLangFile().'.add') }}
 ```
