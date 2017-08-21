@@ -1,4 +1,7 @@
 # Laravel Backpack CRUD Extended
+[![Travis](https://img.shields.io/travis/novius/laravel-backpack-crud-extended.svg?maxAge=1800&style=flat-square)](https://travis-ci.org/novius/laravel-backpack-crud-extended)
+[![Packagist Release](https://img.shields.io/packagist/v/novius/laravel-backpack-crud-extended.svg?maxAge=1800&style=flat-square)](https://packagist.org/packages/novius/laravel-backpack-crud-extended)
+[![Licence](https://img.shields.io/packagist/l/novius/laravel-backpack-crud-extended.svg?maxAge=1800&style=flat-square)](https://github.com/novius/laravel-backpack-crud-extended#licence)
 
 This package extends [Backpack/CRUD](https://github.com/laravel-backpack/crud). See all features added bellow.
 
@@ -44,6 +47,8 @@ php artisan vendor:publish --provider="Novius\Backpack\CRUD\CrudServiceProvider"
 ### CRUD Boxes
 
 You can now split your create/edit inputs into multiple boxes.
+
+![backpack-crud-boxes](https://user-images.githubusercontent.com/1242207/29534032-bab29fec-86b4-11e7-9f2d-108350395975.png)
 
 In order to use this feature, you just need to specify the box name for each of your fields.
 
