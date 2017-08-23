@@ -61,5 +61,4 @@ class UploadImageService
 
         return true;
     }
-
 }

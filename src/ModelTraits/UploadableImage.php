@@ -104,5 +104,5 @@ trait UploadableImage
      *
      * @return array
      */
-    abstract function uploadableImage(): array;
+    abstract public function uploadableImage(): array;
 }
