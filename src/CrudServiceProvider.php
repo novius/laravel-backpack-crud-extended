@@ -3,6 +3,8 @@
 namespace Novius\Backpack\CRUD;
 
 use Backpack\CRUD\CrudServiceProvider as BackpackCrudServiceProvider;
+use Novius\Backpack\CRUD\Observers\UploadImageObserver;
+use Novius\Backpack\CRUD\Services\UploadImageService;
 
 class CrudServiceProvider extends BackpackCrudServiceProvider
 {
@@ -54,5 +56,9 @@ class CrudServiceProvider extends BackpackCrudServiceProvider
     public function register()
     {
         parent::register();
+
+        $this->app->singleton(UploadImageObserver::class, function ($app) {
+            return new UploadImageObserver(new UploadImageService(), $app['events']);
+        });
     }
 }
