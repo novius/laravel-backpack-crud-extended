@@ -34,11 +34,11 @@ trait UploadableImage
         $this->imageSlugAttributeName = (string) array_get($this->uploadableImage(), 'slugAttribute');
 
         if (empty($this->imageAttributeName)) {
-            throw new \Exception('Trait UploadableImage : nameAttribute is required.');
+            throw new \RuntimeException('Trait UploadableImage : nameAttribute is required.');
         }
 
         if (!array_key_exists($this->imageAttributeName, $this->attributes)) {
-            throw new \Exception('Trait UploadableImage : nameAttribute must be a valid attribute name.');
+            throw new \RuntimeException('Trait UploadableImage : nameAttribute must be a valid attribute name.');
         }
     }
 
