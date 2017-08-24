@@ -32,7 +32,7 @@ class UploadImageObserver
 
     /**
      * @param \Illuminate\Database\Eloquent\Model $model
-     * @return boolean|null
+     * @return boolean
      */
     public function saved(Model $model)
     {
@@ -41,7 +41,7 @@ class UploadImageObserver
 
     /**
      * @param \Illuminate\Database\Eloquent\Model $model
-     * @return boolean|null
+     * @return boolean
      */
     public function deleting(Model $model)
     {

@@ -46,8 +46,6 @@ trait UploadableImage
      * Call this method in your model attribute mutator
      *
      * @param mixed $value : the image uploaded (string base64 encoded or null)
-     * @param string $imageAttributeName : the attribute name on your model where to stock the image
-     * @param mixed $imageSlugAttributeName : the attribute name on your model to make title image
      */
     protected function setUploadedImage($value)
     {
