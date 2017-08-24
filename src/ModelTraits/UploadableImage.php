@@ -13,9 +13,7 @@ use Novius\Backpack\CRUD\Observers\UploadImageObserver;
  */
 trait UploadableImage
 {
-    private $tmpImage = null;
-    private $imageAttributeName = null;
-    private $imageSlugAttributeName = null;
+    private $tmpImages = [];
 
     /**
      * Hook into the Eloquent model events to upload or delete image
@@ -25,82 +23,65 @@ trait UploadableImage
         static::observe(app(UploadImageObserver::class));
     }
 
-    /**
-     * Init Trait properties with model attributes name from uploadableImage() method
-     */
-    private function initAttributes()
+    public function setUploadedImage($value, $imageAttributeName)
     {
-        $this->imageAttributeName = (string) array_get($this->uploadableImage(), 'nameAttribute');
-        $this->imageSlugAttributeName = (string) array_get($this->uploadableImage(), 'slugAttribute');
-
-        if (empty($this->imageAttributeName)) {
-            throw new \RuntimeException('Trait UploadableImage : nameAttribute is required.');
-        }
-
-        if (!array_key_exists($this->imageAttributeName, $this->attributes)) {
-            throw new \RuntimeException('Trait UploadableImage : nameAttribute must be a valid attribute name.');
-        }
-    }
-
-    /**
-     * Call this method in your model attribute mutator
-     *
-     * @param mixed $value : the image uploaded (string base64 encoded or null)
-     */
-    protected function setUploadedImage($value)
-    {
-        $this->initAttributes();
-
         if ($value === null) {
-            \Storage::disk('public')->delete($this->attributes[$this->imageAttributeName]);
-            $this->attributes[$this->imageAttributeName] = '';
+            \Storage::disk('public')->delete($this->attributes[$imageAttributeName]);
+            $this->attributes[$imageAttributeName] = '';
         }
+
         if (starts_with($value, 'data:image')) {
-            $this->attributes[$this->imageAttributeName] = '';
-            $this->tmpImage = \Image::make($value);
+            $this->tmpImages[$imageAttributeName] = \Image::make($value);
+            $this->attributes[$imageAttributeName] = '';
+        } elseif (!ends_with($value, '.jpg')) {
+            $this->attributes[$imageAttributeName] = '';
         }
     }
 
     /**
-     * Fill image attribute with file path
-     *
      * @param $path
+     * @param $imageAttributeName
      */
-    public function fillImagePath($path)
+    public function fillImagePath($path, $imageAttributeName)
     {
-        $this->attributes[$this->imageAttributeName] = $path;
+        $this->attributes[$imageAttributeName] = $path;
         // Reset tmpImage to prevent infinite loop
-        $this->tmpImage = null;
+        if (isset($this->tmpImages[$imageAttributeName])) {
+            unset($this->tmpImages[$imageAttributeName]);
+        }
     }
 
-    public function getImageAttributeName()
+    public function getTmpImages()
     {
-        if ($this->imageAttributeName === null) {
-            $this->initAttributes();
+        return $this->tmpImages;
+    }
+
+    public function imagesAttributes()
+    {
+        $uploableImages = $this->uploadableImage();
+        if (array_get($uploableImages, 0) === null) {
+            $uploableImages = array($uploableImages);
         }
 
-        return $this->imageAttributeName;
+        return array_pluck($uploableImages, 'name');
     }
 
-    public function getImageSlugAttributeName()
+    public function slugAttributes()
     {
-        if ($this->imageAttributeName === null) {
-            $this->initAttributes();
+        $uploableImages = $this->uploadableImage();
+        if (array_get($uploableImages, 0) === null) {
+            $uploableImages = array($uploableImages);
         }
 
-        return $this->imageSlugAttributeName;
-    }
-
-    public function getTmpImage()
-    {
-        return $this->tmpImage;
+        return array_pluck($uploableImages, 'slug', 'name');
     }
 
     /**
      * Get model attributes name for image upload
-     * Example : return ['nameAttribute' => 'image', slugAttribute' => 'title'];
+     * Simple example: return ['name' => 'image', slug' => 'title'];
+     * With multiple images: return [['name' => 'image', slug' => 'title'], ['name' => 'thumbnail', 'slug' => 'title']];
      *
      * @return array
      */
-    abstract public function uploadableImage(): array;
+    abstract public function uploadableImages(): array;
 }

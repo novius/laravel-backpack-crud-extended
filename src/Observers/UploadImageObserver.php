@@ -34,9 +34,18 @@ class UploadImageObserver
      * @param \Illuminate\Database\Eloquent\Model $model
      * @return boolean
      */
+    public function saving(Model $model)
+    {
+        return $this->imageUploadService->fillImages($model);
+    }
+
+    /**
+     * @param \Illuminate\Database\Eloquent\Model $model
+     * @return boolean
+     */
     public function saved(Model $model)
     {
-        return $this->imageUploadService->saveImage($model);
+        return $this->imageUploadService->saveImages($model);
     }
 
     /**
