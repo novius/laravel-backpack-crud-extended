@@ -12,18 +12,30 @@ use Illuminate\Database\Eloquent\Model;
 class UploadImageService
 {
     /**
+     * Filled with images during model saving
+     * Images will be used on Model "saved" event
+     *
+     * @var array
+     */
+    protected $tmpImages = [];
+
+    /**
      * @var \Illuminate\Database\Eloquent\Model;
      */
     protected $model;
 
-    protected function initModel($model)
+    /**
+     * Init the service Model
+     *
+     * @param Model $model
+     */
+    protected function initModel(Model $model)
     {
         $this->model = $model;
     }
 
     /**
-     * Set model images attributes with good values
-     * Stock images uploaded on
+     * Set Model images attributes with good values
      *
      * @param Model $model
      * @return bool
@@ -31,32 +43,35 @@ class UploadImageService
     public function fillImages(Model $model)
     {
         $this->initModel($model);
-        foreach ($this->model->imagesAttributes() as $imageAttribute) {
-            $this->model->setUploadedImage($this->model->{$imageAttribute}, $imageAttribute);
+        //dump($this->model);
+        foreach ($this->imagesAttributes() as $imageAttribute) {
+            $this->setUploadedImage($imageAttribute);
         }
+        //dump($this->tmpImages);
+        //dd($this->model);
 
         return true;
     }
 
     /**
-     * Save image on disk and update Model column with image path
+     * Save images on disk and update Model columns with images path
      *
-     * @param \Intervention\Image\Image $image
+     * @param Model $model
+     * @return bool
      */
     public function saveImages(Model $model)
     {
         $this->initModel($model);
 
-        $images = $model->getTmpImages();
-        if (empty($images)) {
+        if (empty($this->tmpImages)) {
             return true;
         }
 
-        foreach ($images as $attributeImageName => $image) {
+        foreach ($this->tmpImages as $imageAttributeName => $image) {
             $disk = 'public';
             $folderName = snake_case(class_basename(get_class($this->model)));
-            $destination_path = $folderName.'/'.$this->model->getKey().'/'.$attributeImageName;
-            $imageSlugAttribute = array_get($model->slugAttributes(), $attributeImageName);
+            $destination_path = $folderName.'/'.$this->model->getKey().'/'.$imageAttributeName;
+            $imageSlugAttribute = array_get($this->slugAttributes(), $imageAttributeName);
 
             // 1. Generate a filename.
             $filename = md5(time()).'.jpg';
@@ -68,7 +83,11 @@ class UploadImageService
             \Storage::disk($disk)->put($destination_path.'/'.$filename, $image->stream());
 
             // 3. Save the path to the database
-            $this->model->fillImagePath($destination_path.'/'.$filename, $attributeImageName);
+            $this->model->fillImageUploadedAttributeValue($imageAttributeName, $destination_path.'/'.$filename);
+
+            if (isset($this->tmpImages[$imageAttributeName])) {
+                unset($this->tmpImages[$imageAttributeName]);
+            }
         }
 
         return $this->model->save();
@@ -83,10 +102,86 @@ class UploadImageService
     public function deleteImage(Model $model)
     {
         $this->initModel($model);
-        foreach ($this->model->imagesAttributes() as $imageAttribute) {
+        foreach ($this->imagesAttributes() as $imageAttribute) {
             \Storage::disk('public')->delete($this->model->{$imageAttribute});
         }
 
         return true;
+    }
+
+    /**
+     * Fill Model image attribute with good value
+     *
+     * @param string $imageAttributeName
+     */
+    protected function setUploadedImage(string $imageAttributeName)
+    {
+        $value = $this->model->{$imageAttributeName};
+
+        if (empty($value)) {
+            // Delete old image
+            if (!empty($this->model->getOriginal($imageAttributeName))) {
+                \Storage::disk('public')->delete($this->model->getOriginal($imageAttributeName));
+            }
+            $this->model->fillImageUploadedAttributeValue($imageAttributeName, '');
+
+            return;
+        }
+
+        if (starts_with($value, 'data:image')) {
+            // Upload a new image
+            $this->tmpImages[$imageAttributeName] = \Image::make($value);
+            if (empty($this->model->getOriginal($imageAttributeName))) {
+                // No image before
+                $this->model->fillImageUploadedAttributeValue($imageAttributeName, '');
+            } else {
+                // Erase existing image
+                $this->model->fillImageUploadedAttributeValue($imageAttributeName, $this->model->getOriginal($imageAttributeName));
+            }
+
+            return;
+        }
+
+        if (ends_with($value, '.jpg') && !empty($this->model->getOriginal($imageAttributeName))) {
+            // Keep same image
+            $this->model->fillImageUploadedAttributeValue($imageAttributeName, $this->model->getOriginal($imageAttributeName));
+
+            return;
+        }
+
+        if (!ends_with($value, '.jpg')) {
+            // No image uploaded
+            $this->model->fillImageUploadedAttributeValue($imageAttributeName, '');
+        }
+    }
+
+    /**
+     * Get image attributes names
+     *
+     * @return array
+     */
+    protected function imagesAttributes() : array
+    {
+        $uploableImages = $this->model->uploadableImages();
+        if (array_get($uploableImages, 0) === null) {
+            $uploableImages = [$uploableImages];
+        }
+
+        return array_pluck($uploableImages, 'name');
+    }
+
+    /**
+     * Get slug attributes name (image attributes key based)
+     *
+     * @return array
+     */
+    protected function slugAttributes() : array
+    {
+        $uploableImages = $this->model->uploadableImages();
+        if (array_get($uploableImages, 0) === null) {
+            $uploableImages = [$uploableImages];
+        }
+
+        return array_pluck($uploableImages, 'slug', 'name');
     }
 }
