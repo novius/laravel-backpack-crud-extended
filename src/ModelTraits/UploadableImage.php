@@ -60,7 +60,7 @@ trait UploadableImage
     {
         $uploableImages = $this->uploadableImage();
         if (array_get($uploableImages, 0) === null) {
-            $uploableImages = array($uploableImages);
+            $uploableImages = [$uploableImages];
         }
 
         return array_pluck($uploableImages, 'name');
@@ -70,7 +70,7 @@ trait UploadableImage
     {
         $uploableImages = $this->uploadableImage();
         if (array_get($uploableImages, 0) === null) {
-            $uploableImages = array($uploableImages);
+            $uploableImages = [$uploableImages];
         }
 
         return array_pluck($uploableImages, 'slug', 'name');
