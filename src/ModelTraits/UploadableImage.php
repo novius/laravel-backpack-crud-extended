@@ -58,7 +58,7 @@ trait UploadableImage
 
     public function imagesAttributes()
     {
-        $uploableImages = $this->uploadableImage();
+        $uploableImages = $this->uploadableImages();
         if (array_get($uploableImages, 0) === null) {
             $uploableImages = [$uploableImages];
         }
@@ -68,7 +68,7 @@ trait UploadableImage
 
     public function slugAttributes()
     {
-        $uploableImages = $this->uploadableImage();
+        $uploableImages = $this->uploadableImages();
         if (array_get($uploableImages, 0) === null) {
             $uploableImages = [$uploableImages];
         }
