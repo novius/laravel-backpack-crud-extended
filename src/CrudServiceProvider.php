@@ -3,8 +3,6 @@
 namespace Novius\Backpack\CRUD;
 
 use Backpack\CRUD\CrudServiceProvider as BackpackCrudServiceProvider;
-use Novius\Backpack\CRUD\Observers\UploadImageObserver;
-use Novius\Backpack\CRUD\Services\UploadImageService;
 
 class CrudServiceProvider extends BackpackCrudServiceProvider
 {
