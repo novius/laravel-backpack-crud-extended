@@ -11,6 +11,8 @@ use Illuminate\Database\Eloquent\Model;
  */
 class UploadImageService
 {
+    const STORAGE_DISK_NAME = 'public'; // @TODO : make this option configurable
+
     /**
      * Filled with images during model saving
      * Images will be used on Model "saved" event
@@ -23,16 +25,6 @@ class UploadImageService
      * @var \Illuminate\Database\Eloquent\Model;
      */
     protected $model;
-
-    /**
-     * Init the service Model
-     *
-     * @param Model $model
-     */
-    protected function initModel(Model $model)
-    {
-        $this->model = $model;
-    }
 
     /**
      * Set Model images attributes with good values
@@ -65,22 +57,14 @@ class UploadImageService
         }
 
         foreach ($this->tmpImages as $imageAttributeName => $image) {
-            $disk = 'public';
-            $folderName = snake_case(class_basename(get_class($this->model)));
-            $destination_path = $folderName.'/'.$this->model->getKey().'/'.$imageAttributeName;
-            $imageSlugAttribute = array_get($this->slugAttributes(), $imageAttributeName);
-
-            // 1. Generate a filename.
-            $filename = md5(time()).'.jpg';
-            if (!empty($imageSlugAttribute)) {
-                $filename = str_slug($this->model->{$imageSlugAttribute}).'.jpg';
-            }
+            // 1. Get image path
+            $filePath = $this->getImagePath($imageAttributeName);
 
             // 2. Store the image on disk.
-            \Storage::disk($disk)->put($destination_path.'/'.$filename, $image->stream());
+            \Storage::disk(self::STORAGE_DISK_NAME)->put($filePath, $image->stream());
 
             // 3. Save the path to the database
-            $this->model->fillImageUploadedAttributeValue($imageAttributeName, $destination_path.'/'.$filename);
+            $this->model->fillUploadedImageAttributeValue($imageAttributeName, $filePath);
 
             if (isset($this->tmpImages[$imageAttributeName])) {
                 unset($this->tmpImages[$imageAttributeName]);
@@ -88,6 +72,27 @@ class UploadImageService
         }
 
         return $this->model->save();
+    }
+
+    /**
+     * Generate image path
+     *
+     * @param $imageAttributeName
+     * @return string
+     */
+    protected function getImagePath(string $imageAttributeName): string
+    {
+        $folderName = snake_case(class_basename(get_class($this->model)));
+        $destination_path = $folderName.'/'.$this->model->getKey().'/'.$imageAttributeName;
+        $imageSlugAttribute = array_get($this->slugAttributes(), $imageAttributeName);
+
+        // 1. Generate a filename.
+        $filename = md5(time()).'.jpg';
+        if (!empty($imageSlugAttribute)) {
+            $filename = str_slug($this->model->{$imageSlugAttribute}).'.jpg';
+        }
+
+        return $destination_path.'/'.$filename;
     }
 
     /**
@@ -100,7 +105,7 @@ class UploadImageService
     {
         $this->initModel($model);
         foreach ($this->imagesAttributes() as $imageAttribute) {
-            \Storage::disk('public')->delete($this->model->{$imageAttribute});
+            \Storage::disk(self::STORAGE_DISK_NAME)->delete($this->model->{$imageAttribute});
         }
 
         return true;
@@ -118,9 +123,9 @@ class UploadImageService
         if (empty($value)) {
             // Delete old image
             if (!empty($this->model->getOriginal($imageAttributeName))) {
-                \Storage::disk('public')->delete($this->model->getOriginal($imageAttributeName));
+                \Storage::disk(self::STORAGE_DISK_NAME)->delete($this->model->getOriginal($imageAttributeName));
             }
-            $this->model->fillImageUploadedAttributeValue($imageAttributeName, '');
+            $this->model->fillUploadedImageAttributeValue($imageAttributeName, '');
 
             return;
         }
@@ -130,10 +135,10 @@ class UploadImageService
             $this->tmpImages[$imageAttributeName] = \Image::make($value);
             if (empty($this->model->getOriginal($imageAttributeName))) {
                 // No image before
-                $this->model->fillImageUploadedAttributeValue($imageAttributeName, '');
+                $this->model->fillUploadedImageAttributeValue($imageAttributeName, '');
             } else {
                 // Erase existing image
-                $this->model->fillImageUploadedAttributeValue($imageAttributeName, $this->model->getOriginal($imageAttributeName));
+                $this->model->fillUploadedImageAttributeValue($imageAttributeName, $this->model->getOriginal($imageAttributeName));
             }
 
             return;
@@ -141,14 +146,14 @@ class UploadImageService
 
         if (ends_with($value, '.jpg') && !empty($this->model->getOriginal($imageAttributeName))) {
             // Keep same image
-            $this->model->fillImageUploadedAttributeValue($imageAttributeName, $this->model->getOriginal($imageAttributeName));
+            $this->model->fillUploadedImageAttributeValue($imageAttributeName, $this->model->getOriginal($imageAttributeName));
 
             return;
         }
 
         if (!ends_with($value, '.jpg')) {
             // No image uploaded
-            $this->model->fillImageUploadedAttributeValue($imageAttributeName, '');
+            $this->model->fillUploadedImageAttributeValue($imageAttributeName, '');
         }
     }
 
@@ -157,7 +162,7 @@ class UploadImageService
      *
      * @return array
      */
-    protected function imagesAttributes() : array
+    protected function imagesAttributes(): array
     {
         $uploableImages = $this->model->uploadableImages();
         if (array_get($uploableImages, 0) === null) {
@@ -172,7 +177,7 @@ class UploadImageService
      *
      * @return array
      */
-    protected function slugAttributes() : array
+    protected function slugAttributes(): array
     {
         $uploableImages = $this->model->uploadableImages();
         if (array_get($uploableImages, 0) === null) {
@@ -180,5 +185,15 @@ class UploadImageService
         }
 
         return array_pluck($uploableImages, 'slug', 'name');
+    }
+
+    /**
+     * Init the service Model
+     *
+     * @param Model $model
+     */
+    protected function initModel(Model $model)
+    {
+        $this->model = $model;
     }
 }

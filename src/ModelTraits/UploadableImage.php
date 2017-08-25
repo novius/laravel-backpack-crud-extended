@@ -33,7 +33,7 @@ trait UploadableImage
      * @param string $imageAttributeName
      * @param string $path
      */
-    public function fillImageUploadedAttributeValue(string $imageAttributeName, string $path)
+    public function fillUploadedImageAttributeValue(string $imageAttributeName, string $path)
     {
         $this->{$imageAttributeName} = $path;
     }
