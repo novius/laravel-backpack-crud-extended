@@ -17,6 +17,10 @@
         {
             "name": "Pascal Viney",
             "email": "viney@novius.fr"
+        },
+        {
+            "name": "Tony Botalla",
+            "email": "botalla@novius.fr"
         }
     ],
     "require": {
