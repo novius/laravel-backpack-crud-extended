@@ -15,19 +15,13 @@ class UploadImageObserver
     private $imageUploadService;
 
     /**
-     * @var \Illuminate\Contracts\Events\Dispatcher
-     */
-    private $events;
-
-    /**
      * UploadableImageObserver constructor.
      * @param UploadImageService $slugService
      * @param Dispatcher $events
      */
-    public function __construct(UploadImageService $imageUploadService, Dispatcher $events)
+    public function __construct(UploadImageService $imageUploadService)
     {
         $this->imageUploadService = $imageUploadService;
-        $this->events = $events;
     }
 
     /**

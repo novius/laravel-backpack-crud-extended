@@ -3,6 +3,7 @@
 namespace Novius\Backpack\CRUD\ModelTraits;
 
 use Novius\Backpack\CRUD\Observers\UploadImageObserver;
+use Novius\Backpack\CRUD\Services\UploadImageService;
 
 /**
  * Trait UploadableImage
@@ -18,6 +19,11 @@ trait UploadableImage
      */
     public static function bootUploadableImage()
     {
+        // We need to create a shared instance of Observer (only on this model) to keep some information at each fired events
+        $observer = new UploadImageObserver(new UploadImageService());
+        app()->instance(UploadImageObserver::class, $observer);
+
+        // Observe Model Events with same instance of observer
         static::observe(app(UploadImageObserver::class));
     }
 

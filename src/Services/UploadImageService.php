@@ -43,12 +43,9 @@ class UploadImageService
     public function fillImages(Model $model)
     {
         $this->initModel($model);
-        //dump($this->model);
         foreach ($this->imagesAttributes() as $imageAttribute) {
             $this->setUploadedImage($imageAttribute);
         }
-        //dump($this->tmpImages);
-        //dd($this->model);
 
         return true;
     }
