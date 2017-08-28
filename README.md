@@ -111,7 +111,7 @@ You can use it in your own views like this:
 If you use Image CRUD Field, you can implement this Trait on your Model to automatically upload / delete image(s) on server.
 
 Example:
-```
+```php
 // Article Model
 
 class Article extends \Backpack\NewsCRUD\app\Models\Article
@@ -139,7 +139,7 @@ class Article extends \Backpack\NewsCRUD\app\Models\Article
 
 ```
 
-```
+```php
 // ArticleCrudController
 
 $this->crud->addField([ 
