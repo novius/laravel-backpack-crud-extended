@@ -101,7 +101,7 @@ class UploadImageService
      * @param Model $model
      * @return bool
      */
-    public function deleteImage(Model $model)
+    public function deleteImages(Model $model)
     {
         $this->initModel($model);
         foreach ($this->imagesAttributes() as $imageAttribute) {

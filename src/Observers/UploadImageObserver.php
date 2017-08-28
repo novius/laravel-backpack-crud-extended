@@ -48,7 +48,7 @@ class UploadImageObserver
      */
     public function deleting(Model $model)
     {
-        return $this->imageUploadService->deleteImage($model);
+        return $this->imageUploadService->deleteImages($model);
     }
 
 }
