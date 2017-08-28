@@ -106,6 +106,63 @@ You can use it in your own views like this:
 {{ trans($crud->getLangFile().'.add') }}
 ```
 
+### Image Field : `UploadableImage` Trait
+
+If you use Image CRUD Field, you can implement this Trait on your Model to automatically upload / delete image(s) on server.
+
+Example:
+```
+// Article Model
+
+class Article extends \Backpack\NewsCRUD\app\Models\Article
+{
+    use Sluggable, SluggableScopeHelpers;
+    use HasTranslations;
+    use UploadableImage;
+
+    protected $fillable = ['slug', 'title', 'content', 'image', 'status', 'category_id', 'featured', 'date', 'thumbnail'];
+    protected $translatable = ['slug', 'title', 'content'];
+
+    public function uploadableImages()
+    {
+        return [
+            [
+                'name' => 'image', // Attribute name where to stock image path
+                'slug' => 'title', // Attribute name to generate image file name (optionnal)
+            ],
+            [
+                'name' => 'thumbnail',
+            ],
+        ];
+    }
+}
+
+```
+
+```
+// ArticleCrudController
+
+$this->crud->addField([ 
+    'label' => 'Image',
+    'name' => 'image',
+    'type' => 'image',
+    'upload' => true,
+    'crop' => true, // set to true to allow cropping, false to disable
+    'aspect_ratio' => 0, // ommit or set to 0 to allow any aspect ratio
+    'prefix' => '/storage/',
+]);
+
+$this->crud->addField([
+    'label' => 'Image',
+    'name' => 'thumbnail',
+    'type' => 'image',
+    'upload' => true,
+    'crop' => true, // set to true to allow cropping, false to disable
+    'aspect_ratio' => 0, // ommit or set to 0 to allow any aspect ratio
+    'prefix' => '/storage/',
+]);
+```
+
 
 ## Testing
 
