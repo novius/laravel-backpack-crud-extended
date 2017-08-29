@@ -190,3 +190,5 @@ Leave an issue on Github, or create a Pull Request.
 ## Licence
 
 This package is under [GNU Affero General Public License v3](http://www.gnu.org/licenses/agpl-3.0.html) or (at your option) any later version.
+
+However, this package requires [Backpack\CRUD](http://github.com/laravel-backpack/crud), which is under YUMMY license: if you use it in a commercial project, you have to [buy a backpack license](https://backpackforlaravel.com/pricing).

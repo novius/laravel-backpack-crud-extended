@@ -111,7 +111,7 @@ trait Boxes
         $boxes = [];
         $fields = $this->getCurrentFields();
 
-        $fields_with_boxes = collect($fields)
+        collect($fields)
             ->filter(function ($value, $key) {
                 return isset($value['box']);
             })
