@@ -5,14 +5,11 @@ namespace Novius\Backpack\CRUD\Services;
 use Illuminate\Database\Eloquent\Model;
 
 /**
- * Class SlugService
- *
- * @package Cviebrock\EloquentSluggable\Services
+ * Class UploadImageService
+ * @package Novius\Backpack\CRUD\Services
  */
-class UploadImageService
+class UploadImageService extends AbstractUploadService
 {
-    const STORAGE_DISK_NAME = 'public'; // @TODO : make this option configurable
-
     /**
      * Filled with images during model saving
      * Images will be used on Model "saved" event
@@ -20,11 +17,6 @@ class UploadImageService
      * @var array
      */
     protected $tmpImages = [];
-
-    /**
-     * @var \Illuminate\Database\Eloquent\Model;
-     */
-    protected $model;
 
     /**
      * Set Model images attributes with good values
@@ -35,7 +27,7 @@ class UploadImageService
     public function fillImages(Model $model)
     {
         $this->initModel($model);
-        foreach ($this->imagesAttributes() as $imageAttribute) {
+        foreach ($this->filesAttributes($this->model->uploadableImages()) as $imageAttribute) {
             $this->setUploadedImage($imageAttribute);
         }
 
@@ -84,7 +76,7 @@ class UploadImageService
     {
         $folderName = snake_case(class_basename(get_class($this->model)));
         $destination_path = $folderName.'/'.$this->model->getKey().'/'.$imageAttributeName;
-        $imageSlugAttribute = array_get($this->slugAttributes(), $imageAttributeName);
+        $imageSlugAttribute = array_get($this->slugAttributes($this->model->uploadableImages()), $imageAttributeName);
 
         // 1. Generate a filename.
         $filename = md5(time()).'.jpg';
@@ -104,7 +96,7 @@ class UploadImageService
     public function deleteImages(Model $model)
     {
         $this->initModel($model);
-        foreach ($this->imagesAttributes() as $imageAttribute) {
+        foreach ($this->filesAttributes($this->model->uploadableImages()) as $imageAttribute) {
             \Storage::disk(self::STORAGE_DISK_NAME)->delete($this->model->{$imageAttribute});
         }
 
@@ -155,45 +147,5 @@ class UploadImageService
             // No image uploaded
             $this->model->fillUploadedImageAttributeValue($imageAttributeName, '');
         }
-    }
-
-    /**
-     * Get image attributes names
-     *
-     * @return array
-     */
-    protected function imagesAttributes(): array
-    {
-        $uploableImages = $this->model->uploadableImages();
-        if (array_get($uploableImages, 0) === null) {
-            $uploableImages = [$uploableImages];
-        }
-
-        return array_pluck($uploableImages, 'name');
-    }
-
-    /**
-     * Get slug attributes name (image attributes key based)
-     *
-     * @return array
-     */
-    protected function slugAttributes(): array
-    {
-        $uploableImages = $this->model->uploadableImages();
-        if (array_get($uploableImages, 0) === null) {
-            $uploableImages = [$uploableImages];
-        }
-
-        return array_pluck($uploableImages, 'slug', 'name');
-    }
-
-    /**
-     * Init the service Model
-     *
-     * @param Model $model
-     */
-    protected function initModel(Model $model)
-    {
-        $this->model = $model;
     }
 }

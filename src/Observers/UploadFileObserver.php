@@ -4,23 +4,23 @@ namespace Novius\Backpack\CRUD\Observers;
 
 use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Database\Eloquent\Model;
+use Novius\Backpack\CRUD\Services\UploadFileService;
 use Novius\Backpack\CRUD\Services\UploadImageService;
 
-class UploadImageObserver
+class UploadFileObserver
 {
+    /**
+     * @var UploadFileService
+     */
+    private $uploadFileService;
 
     /**
-     * @var \Cviebrock\EloquentSluggable\Services\SlugService
+     * UploadFileObserver constructor.
+     * @param UploadFileService $uploadFileService
      */
-    private $imageUploadService;
-
-    /**
-     * UploadImageObserver constructor.
-     * @param UploadImageService $imageUploadService
-     */
-    public function __construct(UploadImageService $imageUploadService)
+    public function __construct(UploadFileService $uploadFileService)
     {
-        $this->imageUploadService = $imageUploadService;
+        $this->uploadFileService = $uploadFileService;
     }
 
     /**
@@ -28,7 +28,7 @@ class UploadImageObserver
      */
     public function saving(Model $model)
     {
-        $this->imageUploadService->fillImages($model);
+        $this->uploadFileService->fillFiles($model);
     }
 
     /**
@@ -36,7 +36,7 @@ class UploadImageObserver
      */
     public function saved(Model $model)
     {
-        $this->imageUploadService->saveImages($model);
+        $this->uploadFileService->saveFiles($model);
     }
 
     /**
@@ -44,7 +44,6 @@ class UploadImageObserver
      */
     public function deleting(Model $model)
     {
-        $this->imageUploadService->deleteImages($model);
+        $this->uploadFileService->deleteFiles($model);
     }
-
 }

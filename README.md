@@ -106,6 +106,63 @@ You can use it in your own views like this:
 {{ trans($crud->getLangFile().'.add') }}
 ```
 
+### Upload Field : `UploadableFile` Trait
+
+If you use Upload CRUD Field, you can implement this Trait on your Model to automatically upload / delete file(s) on server.
+
+Example:
+```php
+// Article Model
+
+class Article extends \Backpack\NewsCRUD\app\Models\Article
+{
+    use Sluggable, SluggableScopeHelpers;
+    use HasTranslations;
+    use UploadableFile;
+
+    protected $fillable = ['slug', 'title', 'content', 'image', 'status', 'category_id', 'featured', 'date', 'document', 'document_2'];
+    protected $translatable = ['slug', 'title', 'content'];
+
+    public function uploadableFiles(): array
+    {
+        return [
+            ['name' => 'document'],
+            ['name' => 'document_2', 'slug' => 'title']
+        ];
+    }
+}
+```
+
+```php
+// ArticleCrudController
+
+$this->crud->addField([ 
+    'label' => 'Image',
+    'name' => 'image',
+    'type' => 'image',
+    'upload' => true,
+    'crop' => true, // set to true to allow cropping, false to disable
+    'aspect_ratio' => 0, // ommit or set to 0 to allow any aspect ratio
+    'prefix' => '/storage/',
+]);
+
+$this->crud->addField([
+    'label' => 'Document',
+    'name' => 'document',
+    'type' => 'upload',
+    'upload' => true,
+    'prefix' => '/storage/',
+]);
+
+$this->crud->addField([
+    'label' => 'Document 2',
+    'name' => 'document_2',
+    'type' => 'upload',
+    'upload' => true,
+    'prefix' => '/storage/',
+]);
+```
+
 ### Image Field : `UploadableImage` Trait
 
 If you use Image CRUD Field, you can implement this Trait on your Model to automatically upload / delete image(s) on server.
