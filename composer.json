@@ -8,7 +8,7 @@
         "CRUD"
     ],
     "type": "library",
-    "license": "AGPL v3",
+    "license": "AGPL-3.0",
     "authors": [
         {
             "name": "Julien Guyomard",
