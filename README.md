@@ -163,6 +163,28 @@ $this->crud->addField([
 ]);
 ```
 
+### Upload Field : `file_upload_crud` validation rule
+
+A validation rule exists to easily validate CRUD request with "upload" field.
+
+Example of usage in your requests files:
+```php
+public function rules()
+{
+    return [
+        'name' => 'required|min:2|max:191',           
+        'document' => 'file_upload_crud:pdf,docx', // the parameters must be valid mime types
+    ];
+}
+
+public function messages()
+{
+    return [
+        'file_upload_crud' => 'The :attribute must be a valid file.',
+    ];
+}
+```
+
 ### Image Field : `UploadableImage` Trait
 
 If you use Image CRUD Field, you can implement this Trait on your Model to automatically upload / delete image(s) on server.
