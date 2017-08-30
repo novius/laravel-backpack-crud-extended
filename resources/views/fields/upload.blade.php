@@ -18,24 +18,26 @@
         </div>
     @endif
 
-    @if (isset($field['value']) && $field['value'] !== null)
-        {{-- File already exists : put the path value to hidden file  --}}
-        <input
-                type="hidden"
-                id="{{ $field['name'] }}_file_input"
-                name="{{ $field['name'] }}"
-                value="{{ $field['value'] }}"
-                @include('crud::inc.field_attributes', ['default_class' =>  'form-control']) />
-    @else
-        {{-- File not exists : display an input file --}}
-        <input
-                type="file"
-                id="{{ $field['name'] }}_file_input"
-                name="{{ $field['name'] }}"
-                value="{{ isset($field['default']) ? $field['default'] : '' }}"
-                @include('crud::inc.field_attributes', ['default_class' => 'form-control'])
-        />
-    @endif
+    <div class="js-parent-input">
+        @if (isset($field['value']) && $field['value'] !== null)
+            {{-- File already exists : put the path value to hidden file  --}}
+            <input
+                    type="hidden"
+                    id="{{ $field['name'] }}_file_input"
+                    name="{{ $field['name'] }}"
+                    value="{{ $field['value'] }}"
+                    @include('crud::inc.field_attributes', ['default_class' =>  'form-control']) />
+        @else
+            {{-- File not exists : display an input file --}}
+            <input
+                    type="file"
+                    id="{{ $field['name'] }}_file_input"
+                    name="{{ $field['name'] }}"
+                    value="{{ isset($field['default']) ? $field['default'] : '' }}"
+                    @include('crud::inc.field_attributes', ['default_class' => 'form-control'])
+            />
+        @endif
+    </div>
 
     {{-- HINT --}}
     @if (isset($field['hint']))
@@ -49,12 +51,23 @@
 @push('crud_fields_scripts')
     <!-- no scripts -->
     <script>
-        $("#{{ $field['name'] }}_file_clear_button").click(function(e) {
+        $("#{{ $field['name'] }}_file_clear_button").click(function (e) {
             e.preventDefault();
             $(this).parent().addClass('hidden');
             // Replace input hidden by an input file and show it
             var $input = $("#{{ $field['name'] }}_file_input");
-            $input.replaceWith($input.clone().attr('type', 'file').val('').removeClass('hidden'));
+            var $parent = $input.parent();
+            var $newInput = $('<input type="file" name="{{ $field['name'] }}" />');
+            $newInput.addClass($input.attr('class')).attr('id', $input.attr('id'));
+            $parent.append($newInput);
+            $input.remove(); // Remove to force browser to clear val()
+            // Add an hidden input with the same name, so that the setXAttribute method is triggered by the Eloquent Model
+            $parent.append($("<input type='hidden' name='{{ $field['name'] }}' value=''>"));
+        });
+
+        $('.js-parent-input').on('change', 'input[type="file"]', function () {
+            // Remove hidden file if user browse a file
+            $(this).next("input[type=hidden]").remove();
         });
     </script>
 @endpush
