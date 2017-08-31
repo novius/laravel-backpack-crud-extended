@@ -3,6 +3,8 @@
 namespace Novius\Backpack\CRUD;
 
 use Backpack\CRUD\CrudServiceProvider as BackpackCrudServiceProvider;
+use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Validator;
 
 class CrudServiceProvider extends BackpackCrudServiceProvider
 {
@@ -43,6 +45,18 @@ class CrudServiceProvider extends BackpackCrudServiceProvider
          */
         app()->bind(\Backpack\CRUD\CrudPanel::class, function () {
             return new CrudPanel();
+        });
+
+        // Add a validation rule for Upload Field
+        Validator::extend('file_upload_crud', function ($attribute, $value, $parameters, $validator) {
+            $isValidFile = false;
+            if (is_a($value, UploadedFile::class)) {
+                $rules = [$attribute => 'mimes:'.implode(',', $parameters)];
+                $input = [$attribute => $value];
+                $isValidFile = Validator::make($input, $rules)->passes();
+            }
+
+            return is_string($value) || $isValidFile;
         });
     }
 
