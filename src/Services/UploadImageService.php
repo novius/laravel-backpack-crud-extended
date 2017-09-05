@@ -36,7 +36,6 @@ class UploadImageService extends AbstractUploadService
             } else {
                 $this->setUploadedImage($imageAttribute);
             }
-
         }
 
         return true;
