@@ -2,7 +2,6 @@
 
 namespace Novius\Backpack\CRUD\ModelTraits;
 
-use Illuminate\Support\Facades\Log;
 use Novius\Backpack\CRUD\Observers\UploadImageObserver;
 use Novius\Backpack\CRUD\Services\UploadImageService;
 
