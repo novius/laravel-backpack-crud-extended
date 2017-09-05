@@ -130,7 +130,6 @@ class UploadImageService extends AbstractUploadService
         }
 
         if (starts_with($value, 'data:image')) {
-
             // Upload a new image making it storable
             $this->tmpImages[$imageAttributeName] = \Image::make($value);
 
@@ -168,10 +167,9 @@ class UploadImageService extends AbstractUploadService
      */
     protected function setUploadedImageLang(string $imageAttributeName)
     {
-        $locale = $_POST['locale'];
+        $locale = request('locale');
         $value = $this->model->getTranslation($imageAttributeName, $locale);
         $original = $originalLocale = null;
-
 
         if (!empty($this->model->getOriginal($imageAttributeName))) {
             $original = json_decode($this->model->getOriginal($imageAttributeName), true);
