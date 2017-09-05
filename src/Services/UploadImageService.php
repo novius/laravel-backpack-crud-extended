@@ -28,7 +28,15 @@ class UploadImageService extends AbstractUploadService
     {
         $this->initModel($model);
         foreach ($this->filesAttributes($this->model->uploadableImages()) as $imageAttribute) {
-            $this->setUploadedImage($imageAttribute);
+            if (method_exists($this->model, 'isTranslatableAttribute')
+                && is_callable([$this->model, 'isTranslatableAttribute'])
+                && $this->model->isTranslatableAttribute($imageAttribute)
+            ) {
+                $this->setUploadedImageLang($imageAttribute);
+            } else {
+                $this->setUploadedImage($imageAttribute);
+            }
+
         }
 
         return true;
@@ -75,16 +83,16 @@ class UploadImageService extends AbstractUploadService
     protected function getImagePath(string $imageAttributeName): string
     {
         $folderName = snake_case(class_basename(get_class($this->model)));
-        $destination_path = $folderName.'/'.$this->model->getKey().'/'.$imageAttributeName;
+        $destination_path = $folderName . '/' . $this->model->getKey() . '/' . $imageAttributeName;
         $imageSlugAttribute = array_get($this->slugAttributes($this->model->uploadableImages()), $imageAttributeName);
 
         // 1. Generate a filename.
-        $filename = md5(time()).'.jpg';
+        $filename = md5(time()) . '.jpg';
         if (!empty($imageSlugAttribute)) {
-            $filename = str_slug($this->model->{$imageSlugAttribute}).'.jpg';
+            $filename = str_slug($this->model->{$imageSlugAttribute}) . '.jpg';
         }
 
-        return $destination_path.'/'.$filename;
+        return $destination_path . '/' . $filename;
     }
 
     /**
@@ -123,22 +131,27 @@ class UploadImageService extends AbstractUploadService
         }
 
         if (starts_with($value, 'data:image')) {
-            // Upload a new image
+
+            // Upload a new image making it storable
             $this->tmpImages[$imageAttributeName] = \Image::make($value);
-            if (empty($this->model->getOriginal($imageAttributeName))) {
-                // No image before
-                $this->model->fillUploadedImageAttributeValue($imageAttributeName, '');
-            } else {
-                // Erase existing image
-                $this->model->fillUploadedImageAttributeValue($imageAttributeName, $this->model->getOriginal($imageAttributeName));
+
+            // Delete the old one
+            if (!empty($this->model->getOriginal($imageAttributeName))) {
+                \Storage::disk(self::STORAGE_DISK_NAME)->delete($this->model->getOriginal($imageAttributeName));
             }
+
+            $this->model->fillUploadedImageAttributeValue($imageAttributeName, '');
 
             return;
         }
 
         if (ends_with($value, '.jpg') && !empty($this->model->getOriginal($imageAttributeName))) {
-            // Keep same image
-            $this->model->fillUploadedImageAttributeValue($imageAttributeName, $this->model->getOriginal($imageAttributeName));
+            if ($value === $this->model->getOriginal($imageAttributeName) || starts_with($value, 'http')) {
+                // If the image isn't in b64 or if the image have an absolute path (meaning it's an update)
+                $this->model->fillUploadedImageAttributeValue($imageAttributeName, $this->model->getOriginal($imageAttributeName));
+            } else {
+                $this->model->fillUploadedImageAttributeValue($imageAttributeName, $value);
+            }
 
             return;
         }
@@ -148,4 +161,68 @@ class UploadImageService extends AbstractUploadService
             $this->model->fillUploadedImageAttributeValue($imageAttributeName, '');
         }
     }
+
+    /**
+     * Fill Model image attribute with good value associated to the good language
+     *
+     * @param string $imageAttributeName
+     */
+    protected function setUploadedImageLang(string $imageAttributeName)
+    {
+        $locale = $_POST['locale'];
+        $value = $this->model->getTranslation($imageAttributeName, $locale);
+        $original = $originalLocale = null;
+
+
+        if (!empty($this->model->getOriginal($imageAttributeName))) {
+            $original = json_decode($this->model->getOriginal($imageAttributeName), true);
+            $originalLocale = array_get($original, $locale, null);
+        }
+
+        if (empty($value)) {
+            // Delete old image
+            if (!empty($originalLocale)) {
+                \Storage::disk(self::STORAGE_DISK_NAME)->delete($originalLocale);
+            }
+
+            // Set path to '' as there is no image in the input
+            $this->model->fillUploadedImageAttributeValue($imageAttributeName, '');
+
+            return;
+        }
+
+        if (starts_with($value, 'data:image')) {
+
+            // Upload a new image making it storable
+            $this->tmpImages[$imageAttributeName] = \Image::make($value);
+
+            // Delete the old one
+            if (!empty($originalLocale)) {
+                \Storage::disk(self::STORAGE_DISK_NAME)->delete($originalLocale);
+            }
+
+            $this->model->fillUploadedImageAttributeValue($imageAttributeName, '');
+
+            return;
+        }
+
+        if (ends_with($value, '.jpg') && !empty($originalLocale)) {
+            if ($value === $originalLocale || starts_with($value, 'http')) {
+                // If the image isn't in b64 or if the image have an absolute path (meaning it's an update)
+                $this->model->fillUploadedImageAttributeValue($imageAttributeName, $originalLocale);
+            } else {
+                $this->model->fillUploadedImageAttributeValue($imageAttributeName, $value);
+            }
+
+            return;
+        }
+
+        if (!ends_with($value, '.jpg')) {
+            // No image has been uploaded
+            $this->model->fillUploadedImageAttributeValue($imageAttributeName, '');
+        }
+    }
+
+
 }
+

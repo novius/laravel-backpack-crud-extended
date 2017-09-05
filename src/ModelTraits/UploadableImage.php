@@ -2,6 +2,7 @@
 
 namespace Novius\Backpack\CRUD\ModelTraits;
 
+use Illuminate\Support\Facades\Log;
 use Novius\Backpack\CRUD\Observers\UploadImageObserver;
 use Novius\Backpack\CRUD\Services\UploadImageService;
 
@@ -35,7 +36,14 @@ trait UploadableImage
      */
     public function fillUploadedImageAttributeValue(string $imageAttributeName, string $path)
     {
-        $this->{$imageAttributeName} = $path;
+        if (method_exists($this, 'isTranslatableAttribute')
+            && is_callable([$this, 'isTranslatableAttribute'])
+            && $this->isTranslatableAttribute($imageAttributeName)
+        ) {
+            $this->setTranslation($imageAttributeName, request('locale', $default = null), $path);
+        } else {
+            $this->{$imageAttributeName} = $path;
+        };
     }
 
     /**
