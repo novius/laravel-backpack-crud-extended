@@ -22,6 +22,7 @@ class CrudController extends \Backpack\CRUD\app\Http\Controllers\CrudController
                 if (method_exists($this->crud, 'initPermissions')) {
                     $this->crud->initPermissions();
                 }
+
                 return $next($request);
             });
         }
