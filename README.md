@@ -41,8 +41,37 @@ You have to remove views into `resources/views/vendor/backpack/crud/`, or to ove
 php artisan vendor:publish --provider="Novius\Backpack\CRUD\CrudServiceProvider" --force
 ```
 
+### Configuration
+
+```sh
+php artisan vendor:publish --provider="Novius\Backpack\CRUD\CrudServiceProvider" --tag="config"
+```
+
 
 ## Usage & Features
+
+### Permissions
+
+#### Description
+- Permissions can be applied automatically to CRUD Controllers : deny access if user hasn't the permission linked to the route => `apply_permissions` option
+- Permissions can be automatically created for all Crud Controllers used in you application (4 permissions will be created : list, update, create, delete) => `create_permissions_while_browsing` option
+- Permissions can be automatically given to the logged user (useful in local environment)  => `give_permissions_to_current_user_while_browsing` option
+
+#### Requirements
+
+- This feature require : [Laravel-Backpack/PermissionManager](https://github.com/Laravel-Backpack/PermissionManager)
+- You have to publish config file :
+
+```sh
+php artisan permissions:generate // Insert permissions in database for each CRUD controllers.
+```
+
+- Set to true each options that you want activate
+
+#### Usage
+
+Your CrudController must extend `\Novius\Backpack\CRUD\Http\Controllers\CrudController`
+
 
 ### CRUD Boxes
 
