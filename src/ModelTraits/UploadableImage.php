@@ -39,7 +39,7 @@ trait UploadableImage
             && is_callable([$this, 'isTranslatableAttribute'])
             && $this->isTranslatableAttribute($imageAttributeName)
         ) {
-            $this->setTranslation($imageAttributeName, request('locale'), $path);
+            $this->setTranslation($imageAttributeName, (string) request('locale'), $path);
         } else {
             $this->{$imageAttributeName} = $path;
         }
