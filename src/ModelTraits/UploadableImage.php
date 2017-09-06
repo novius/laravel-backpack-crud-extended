@@ -35,7 +35,14 @@ trait UploadableImage
      */
     public function fillUploadedImageAttributeValue(string $imageAttributeName, string $path)
     {
-        $this->{$imageAttributeName} = $path;
+        if (method_exists($this, 'isTranslatableAttribute')
+            && is_callable([$this, 'isTranslatableAttribute'])
+            && $this->isTranslatableAttribute($imageAttributeName)
+        ) {
+            $this->setTranslation($imageAttributeName, (string) request('locale'), $path);
+        } else {
+            $this->{$imageAttributeName} = $path;
+        }
     }
 
     /**

@@ -28,7 +28,14 @@ class UploadImageService extends AbstractUploadService
     {
         $this->initModel($model);
         foreach ($this->filesAttributes($this->model->uploadableImages()) as $imageAttribute) {
-            $this->setUploadedImage($imageAttribute);
+            if (method_exists($this->model, 'isTranslatableAttribute')
+                && is_callable([$this->model, 'isTranslatableAttribute'])
+                && $this->model->isTranslatableAttribute($imageAttribute)
+            ) {
+                $this->setUploadedImageLang($imageAttribute);
+            } else {
+                $this->setUploadedImage($imageAttribute);
+            }
         }
 
         return true;
@@ -104,6 +111,66 @@ class UploadImageService extends AbstractUploadService
     }
 
     /**
+     * Delete old images
+     *
+     * @param $originalLocale
+     * @param string $imageAttributeName
+     * @return bool
+     */
+    protected function deleteOldImage($originalLocale, string $imageAttributeName)
+    {
+        // Delete old image :
+        if (!empty($originalLocale)) {
+            \Storage::disk(self::STORAGE_DISK_NAME)->delete($originalLocale);
+        }
+        // Set path to '' as there is no image in the input :
+        $this->model->fillUploadedImageAttributeValue($imageAttributeName, '');
+
+        return true;
+    }
+
+    /**
+     * Upload new b64 image
+     *
+     * @param string $imageAttributeName
+     * @param string $value
+     * @param $originalLocale
+     * @return bool
+     */
+    protected function uploadNewImage(string $imageAttributeName, string $value, $originalLocale)
+    {
+        // Upload a new image making it storable :
+        $this->tmpImages[$imageAttributeName] = \Image::make($value);
+        // Delete the old one :
+        if (!empty($originalLocale)) {
+            \Storage::disk(self::STORAGE_DISK_NAME)->delete($originalLocale);
+        }
+        $this->model->fillUploadedImageAttributeValue($imageAttributeName, '');
+
+        return true;
+    }
+
+    /**
+     * Set new image on disk
+     *
+     * @param string $value
+     * @param string $originalLocale
+     * @param string $imageAttributeName
+     * @return bool
+     */
+    protected function setNewImage(string $value, string $originalLocale, string $imageAttributeName)
+    {
+        if ($value === $originalLocale || starts_with($value, 'http')) {
+            // If the image isn't in b64 or if the image have an absolute path (meaning it's an update) :
+            $this->model->fillUploadedImageAttributeValue($imageAttributeName, $originalLocale);
+        } else {
+            $this->model->fillUploadedImageAttributeValue($imageAttributeName, $value);
+        }
+
+        return true;
+    }
+
+    /**
      * Fill Model image attribute with good value
      *
      * @param string $imageAttributeName
@@ -113,38 +180,64 @@ class UploadImageService extends AbstractUploadService
         $value = $this->model->{$imageAttributeName};
 
         if (empty($value)) {
-            // Delete old image
-            if (!empty($this->model->getOriginal($imageAttributeName))) {
-                \Storage::disk(self::STORAGE_DISK_NAME)->delete($this->model->getOriginal($imageAttributeName));
-            }
-            $this->model->fillUploadedImageAttributeValue($imageAttributeName, '');
+            $this->deleteOldImage($this->model->getOriginal($imageAttributeName), $imageAttributeName);
 
             return;
         }
 
         if (starts_with($value, 'data:image')) {
-            // Upload a new image
-            $this->tmpImages[$imageAttributeName] = \Image::make($value);
-            if (empty($this->model->getOriginal($imageAttributeName))) {
-                // No image before
-                $this->model->fillUploadedImageAttributeValue($imageAttributeName, '');
-            } else {
-                // Erase existing image
-                $this->model->fillUploadedImageAttributeValue($imageAttributeName, $this->model->getOriginal($imageAttributeName));
-            }
+            $this->uploadNewImage($imageAttributeName, $value, $this->model->getOriginal($imageAttributeName));
 
             return;
         }
 
         if (ends_with($value, '.jpg') && !empty($this->model->getOriginal($imageAttributeName))) {
-            // Keep same image
-            $this->model->fillUploadedImageAttributeValue($imageAttributeName, $this->model->getOriginal($imageAttributeName));
+            $this->setNewImage($value, $this->model->getOriginal($imageAttributeName), $imageAttributeName);
 
             return;
         }
 
         if (!ends_with($value, '.jpg')) {
             // No image uploaded
+            $this->model->fillUploadedImageAttributeValue($imageAttributeName, '');
+        }
+    }
+
+    /**
+     * Fill Model image attribute with good value associated to the good language
+     *
+     * @param string $imageAttributeName
+     */
+    protected function setUploadedImageLang(string $imageAttributeName)
+    {
+        $locale = (string) request('locale');
+        $value = $this->model->getTranslation($imageAttributeName, $locale);
+        $original = $originalLocale = null;
+
+        if (!empty($this->model->getOriginal($imageAttributeName))) {
+            $original = json_decode($this->model->getOriginal($imageAttributeName), true);
+            $originalLocale = array_get($original, $locale, null);
+        }
+
+        if (empty($value)) {
+            $this->deleteOldImage($originalLocale, $imageAttributeName);
+
+            return;
+        }
+
+        if (starts_with($value, 'data:image')) {
+            $this->uploadNewImage($imageAttributeName, $value, $originalLocale);
+
+            return;
+        }
+
+        if (ends_with($value, '.jpg') && !empty($originalLocale)) {
+            $this->setNewImage($value, $originalLocale, $imageAttributeName);
+
+            return;
+        }
+
+        if (!ends_with($value, '.jpg')) {
             $this->model->fillUploadedImageAttributeValue($imageAttributeName, '');
         }
     }
