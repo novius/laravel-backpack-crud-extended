@@ -4,7 +4,7 @@ namespace Novius\Backpack\CRUD\Console;
 
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Route;
-use Backpack\CRUD\app\Http\Controllers\CrudController;
+use Novius\Backpack\CRUD\Http\Controllers\CrudController;
 
 class PermissionsCommand extends Command
 {
