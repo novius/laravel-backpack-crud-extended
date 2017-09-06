@@ -5,6 +5,13 @@ namespace Novius\Backpack\CRUD\ModelTraits;
 use Novius\Backpack\CRUD\Observers\UploadFileObserver;
 use Novius\Backpack\CRUD\Services\UploadFileService;
 
+/**
+ * Trait UploadableFile
+ *
+ * To make documents upload works, just call $this->setUploadedFile($value) on your model attribute mutator
+ *
+ * @package Novius\Backpack\CRUD\ModelTraits
+ */
 trait UploadableFile
 {
     /**
@@ -21,14 +28,21 @@ trait UploadableFile
     }
 
     /**
-     * Put value on desired model image attribute
+     * Put value on desired model document attribute
      *
      * @param string $fileAttributeName
      * @param string $path
      */
     public function fillUploadedFileAttributeValue(string $fileAttributeName, string $path)
     {
-        $this->{$fileAttributeName} = $path;
+        if (method_exists($this, 'isTranslatableAttribute')
+            && is_callable([$this, 'isTranslatableAttribute'])
+            && $this->isTranslatableAttribute($fileAttributeName)
+        ) {
+            $this->setTranslation($fileAttributeName, request('locale'), $path);
+        } else {
+            $this->{$fileAttributeName} = $path;
+        }
     }
 
     /**

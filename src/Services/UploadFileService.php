@@ -29,8 +29,15 @@ class UploadFileService extends AbstractUploadService
     public function fillFiles(Model $model)
     {
         $this->initModel($model);
-        foreach ($this->filesAttributes($this->model->uploadableFiles()) as $fileAttributeName) {
-            $this->setUploadedFile($fileAttributeName);
+        foreach ($this->filesAttributes($this->model->uploadableFiles()) as $fileAttribute) {
+            if (method_exists($this->model, 'isTranslatableAttribute')
+                && is_callable([$this->model, 'isTranslatableAttribute'])
+                && $this->model->isTranslatableAttribute($fileAttribute)
+            ) {
+                $this->setUploadedFileLang($fileAttribute);
+            } else {
+                $this->setUploadedFile($fileAttribute);
+            }
         }
 
         return true;
@@ -94,7 +101,7 @@ class UploadFileService extends AbstractUploadService
     }
 
     /**
-     * Delete images on disk
+     * Delete file on disk
      *
      * @param Model $model
      * @return bool
@@ -105,6 +112,36 @@ class UploadFileService extends AbstractUploadService
         foreach ($this->filesAttributes($this->model->uploadableFiles()) as $fileAttribute) {
             \Storage::disk(self::STORAGE_DISK_NAME)->delete($this->model->{$fileAttribute});
         }
+
+        return true;
+    }
+
+    /**
+     * Delete old file on disk
+     *
+     * @param $originalAttributeName
+     * @param $fileAttributeName
+     * @return bool
+     */
+    protected function deleteOdlFile($originalAttributeName, $fileAttributeName)
+    {
+        \Storage::disk(self::STORAGE_DISK_NAME)->delete($originalAttributeName);
+        $this->model->fillUploadedFileAttributeValue($fileAttributeName, '');
+
+        return true;
+    }
+
+    /**
+     * Generate new file on disk
+     *
+     * @param Request $request
+     * @param $fileAttributeName
+     * @return bool
+     */
+    protected function generateNewFile($request, $fileAttributeName)
+    {
+        $file = $request->file($fileAttributeName);
+        $this->tmpFiles[$fileAttributeName] = $file;
 
         return true;
     }
@@ -124,21 +161,55 @@ class UploadFileService extends AbstractUploadService
 
         // If a new file is uploaded, delete old file from the disk
         if ($request->hasFile($fileAttributeName) && !empty($this->model->getOriginal($fileAttributeName)) && is_string($fileAttributeValue)) {
-            \Storage::disk(self::STORAGE_DISK_NAME)->delete($this->model->getOriginal($fileAttributeName));
-            $this->model->fillUploadedFileAttributeValue($fileAttributeName, '');
+            $this->deleteOdlFile($this->model->getOriginal($fileAttributeName), $fileAttributeName);
         }
 
         // if the file input is empty, delete the file from the disk
         if (!$request->hasFile($fileAttributeName) && $request->get($fileAttributeName) === null && !empty($this->model->getOriginal($fileAttributeName))) {
-            \Storage::disk(self::STORAGE_DISK_NAME)->delete($this->model->getOriginal($fileAttributeName));
-            $this->model->fillUploadedFileAttributeValue($fileAttributeName, '');
+            $this->deleteOdlFile($this->model->getOriginal($fileAttributeName), $fileAttributeName);
         }
 
         // if a new file is uploaded, store it on disk and its filename in the database
         if ($request->hasFile($fileAttributeName) && $request->file($fileAttributeName)->isValid() && is_a($fileAttributeValue, UploadedFile::class)) {
-            // 1. Generate a new file name
-            $file = $request->file($fileAttributeName);
-            $this->tmpFiles[$fileAttributeName] = $file;
+            $this->generateNewFile($request, $fileAttributeName);
+        }
+    }
+
+    /**
+     * Fill Model image attribute with good value
+     *
+     * @param string $fileAttributeName
+     */
+    protected function setUploadedFileLang(string $fileAttributeName)
+    {
+        /**
+         * @var Request
+         */
+        $request = \Request::instance();
+        $locale = (string) request('locale');
+
+        $fileAttributeValue = $this->model->getTranslation($fileAttributeName, $locale);
+
+        $original = $originalLocale = null;
+
+        if (!empty($this->model->getOriginal($fileAttributeName))) {
+            $original = json_decode($this->model->getOriginal($fileAttributeName), true);
+            $originalLocale = array_get($original, $locale, null);
+        }
+
+        // if the file input is empty, delete the file from the disk
+        if (!$request->hasFile($fileAttributeName) && $request->get($fileAttributeName) === null && !empty($originalLocale)) {
+            $this->deleteOdlFile($originalLocale, $fileAttributeName);
+        }
+
+        // If a new file is uploaded, delete old file from the disk
+        if ($request->hasFile($fileAttributeName) && !empty($originalLocale) && is_array($fileAttributeValue)) {
+            $this->deleteOdlFile($originalLocale, $fileAttributeName);
+        }
+
+        // if a new file is uploaded, store it on disk and its filename in the database
+        if ($request->hasFile($fileAttributeName) && $request->file($fileAttributeName)->isValid() && is_array($fileAttributeValue)) {
+            $this->generateNewFile($request, $fileAttributeName);
         }
     }
 }

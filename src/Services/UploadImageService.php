@@ -36,7 +36,6 @@ class UploadImageService extends AbstractUploadService
             } else {
                 $this->setUploadedImage($imageAttribute);
             }
-
         }
 
         return true;
@@ -83,16 +82,16 @@ class UploadImageService extends AbstractUploadService
     protected function getImagePath(string $imageAttributeName): string
     {
         $folderName = snake_case(class_basename(get_class($this->model)));
-        $destination_path = $folderName . '/' . $this->model->getKey() . '/' . $imageAttributeName;
+        $destination_path = $folderName.'/'.$this->model->getKey().'/'.$imageAttributeName;
         $imageSlugAttribute = array_get($this->slugAttributes($this->model->uploadableImages()), $imageAttributeName);
 
         // 1. Generate a filename.
-        $filename = md5(time()) . '.jpg';
+        $filename = md5(time()).'.jpg';
         if (!empty($imageSlugAttribute)) {
-            $filename = str_slug($this->model->{$imageSlugAttribute}) . '.jpg';
+            $filename = str_slug($this->model->{$imageSlugAttribute}).'.jpg';
         }
 
-        return $destination_path . '/' . $filename;
+        return $destination_path.'/'.$filename;
     }
 
     /**
@@ -173,7 +172,6 @@ class UploadImageService extends AbstractUploadService
         $value = $this->model->getTranslation($imageAttributeName, $locale);
         $original = $originalLocale = null;
 
-
         if (!empty($this->model->getOriginal($imageAttributeName))) {
             $original = json_decode($this->model->getOriginal($imageAttributeName), true);
             $originalLocale = array_get($original, $locale, null);
@@ -222,7 +220,4 @@ class UploadImageService extends AbstractUploadService
             $this->model->fillUploadedImageAttributeValue($imageAttributeName, '');
         }
     }
-
-
 }
-
