@@ -117,8 +117,7 @@ class UploadImageService extends AbstractUploadService
      * @param string $imageAttributeName
      * @return bool
      */
-    protected function deleteOld($originalLocale, string $imageAttributeName)
-    {
+    protected function deleteOldImage($originalLocale, string $imageAttributeName) {
         // Delete old image :
         if (!empty($originalLocale)) {
             \Storage::disk(self::STORAGE_DISK_NAME)->delete($originalLocale);
@@ -137,8 +136,7 @@ class UploadImageService extends AbstractUploadService
      * @param $originalLocale
      * @return bool
      */
-    protected function uploadNew(string $imageAttributeName, string $value, $originalLocale)
-    {
+    protected function uploadNewImage(string $imageAttributeName, string $value, $originalLocale) {
         // Upload a new image making it storable :
         $this->tmpImages[$imageAttributeName] = \Image::make($value);
         // Delete the old one :
@@ -158,8 +156,7 @@ class UploadImageService extends AbstractUploadService
      * @param string $imageAttributeName
      * @return bool
      */
-    protected function setNew(string $value, string $originalLocale, string $imageAttributeName)
-    {
+    protected function setNewImage(string $value, string $originalLocale, string $imageAttributeName) {
         if ($value === $originalLocale || starts_with($value, 'http')) {
             // If the image isn't in b64 or if the image have an absolute path (meaning it's an update) :
             $this->model->fillUploadedImageAttributeValue($imageAttributeName, $originalLocale);
@@ -180,20 +177,17 @@ class UploadImageService extends AbstractUploadService
         $value = $this->model->{$imageAttributeName};
 
         if (empty($value)) {
-            $this->deleteOld($this->model->getOriginal($imageAttributeName), $imageAttributeName);
-
+            $this->deleteOldImage($this->model->getOriginal($imageAttributeName), $imageAttributeName);
             return;
         }
 
         if (starts_with($value, 'data:image')) {
-            $this->uploadNew($imageAttributeName, $value, $this->model->getOriginal($imageAttributeName));
-
+            $this->uploadNewImage($imageAttributeName, $value, $this->model->getOriginal($imageAttributeName));
             return;
         }
 
         if (ends_with($value, '.jpg') && !empty($this->model->getOriginal($imageAttributeName))) {
-            $this->setNew($value, $this->model->getOriginal($imageAttributeName), $imageAttributeName);
-
+            $this->setNewImage($value, $this->model->getOriginal($imageAttributeName), $imageAttributeName);
             return;
         }
 
@@ -220,20 +214,17 @@ class UploadImageService extends AbstractUploadService
         }
 
         if (empty($value)) {
-            $this->deleteOld($originalLocale, $imageAttributeName);
-
+            $this->deleteOldImage($originalLocale, $imageAttributeName);
             return;
         }
 
         if (starts_with($value, 'data:image')) {
-            $this->uploadNew($imageAttributeName, $value, $originalLocale);
-
+            $this->uploadNewImage($imageAttributeName, $value, $originalLocale);
             return;
         }
 
         if (ends_with($value, '.jpg') && !empty($originalLocale)) {
-            $this->setNew($value, $originalLocale, $imageAttributeName);
-
+            $this->setNewImage($value, $originalLocale, $imageAttributeName);
             return;
         }
 
