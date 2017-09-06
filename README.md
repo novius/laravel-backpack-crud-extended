@@ -43,6 +43,8 @@ php artisan vendor:publish --provider="Novius\Backpack\CRUD\CrudServiceProvider"
 
 ### Configuration
 
+Some options that you can override are available.
+
 ```sh
 php artisan vendor:publish --provider="Novius\Backpack\CRUD\CrudServiceProvider" --tag="config"
 ```
