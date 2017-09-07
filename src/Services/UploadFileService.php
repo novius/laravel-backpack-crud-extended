@@ -31,7 +31,6 @@ class UploadFileService extends AbstractUploadService
         $this->initModel($model);
         foreach ($this->filesAttributes($this->model->uploadableFiles()) as $fileAttribute) {
             if (method_exists($this->model, 'isTranslatableAttribute')
-                && is_callable([$this->model, 'isTranslatableAttribute'])
                 && $this->model->isTranslatableAttribute($fileAttribute)
             ) {
                 $this->setUploadedFileLang($fileAttribute);
@@ -186,24 +185,24 @@ class UploadFileService extends AbstractUploadService
          * @var Request
          */
         $request = \Request::instance();
-        $locale = (string) request('locale');
+        $locale = (string) request('locale', '');
 
         $fileAttributeValue = $this->model->getTranslation($fileAttributeName, $locale);
 
-        $original = $originalLocale = null;
+        $originalLocale = null;
 
         if (!empty($this->model->getOriginal($fileAttributeName))) {
             $original = json_decode($this->model->getOriginal($fileAttributeName), true);
             $originalLocale = array_get($original, $locale, null);
         }
 
-        // if the file input is empty, delete the file from the disk
-        if (!$request->hasFile($fileAttributeName) && $request->get($fileAttributeName) === null && !empty($originalLocale)) {
+        // If a new file is uploaded, delete old file from the disk
+        if ($request->hasFile($fileAttributeName) && !empty($originalLocale) && is_array($fileAttributeValue)) {
             $this->deleteOdlFile($originalLocale, $fileAttributeName);
         }
 
-        // If a new file is uploaded, delete old file from the disk
-        if ($request->hasFile($fileAttributeName) && !empty($originalLocale) && is_array($fileAttributeValue)) {
+        // if the file input is empty, delete the file from the disk
+        if (!$request->hasFile($fileAttributeName) && $request->get($fileAttributeName) === null && !empty($originalLocale)) {
             $this->deleteOdlFile($originalLocale, $fileAttributeName);
         }
 

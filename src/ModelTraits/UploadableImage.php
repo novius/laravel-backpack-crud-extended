@@ -36,10 +36,9 @@ trait UploadableImage
     public function fillUploadedImageAttributeValue(string $imageAttributeName, string $path)
     {
         if (method_exists($this, 'isTranslatableAttribute')
-            && is_callable([$this, 'isTranslatableAttribute'])
             && $this->isTranslatableAttribute($imageAttributeName)
         ) {
-            $this->setTranslation($imageAttributeName, request('locale', $default = null), $path);
+            $this->setTranslation($imageAttributeName, (string) request('locale', $this->getLocale()), $path); // Default value is relevant when using seeders or any environment where we dont have acces to "request".
         } else {
             $this->{$imageAttributeName} = $path;
         }

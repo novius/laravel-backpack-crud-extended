@@ -36,10 +36,10 @@ trait UploadableFile
     public function fillUploadedFileAttributeValue(string $fileAttributeName, string $path)
     {
         if (method_exists($this, 'isTranslatableAttribute')
-            && is_callable([$this, 'isTranslatableAttribute'])
             && $this->isTranslatableAttribute($fileAttributeName)
         ) {
-            $this->setTranslation($fileAttributeName, request('locale'), $path);
+            //
+            $this->setTranslation($fileAttributeName, (string) request('locale', $this->getLocale()), $path); // Default value is relevant when using seeders or any environment where we dont have acces to "request".
         } else {
             $this->{$fileAttributeName} = $path;
         }
