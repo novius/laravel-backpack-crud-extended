@@ -122,7 +122,7 @@ class UploadFileService extends AbstractUploadService
      * @param $fileAttributeName
      * @return bool
      */
-    protected function deleteOdlFile($originalAttributeName, $fileAttributeName)
+    protected function deleteOldFile($originalAttributeName, $fileAttributeName)
     {
         \Storage::disk(self::STORAGE_DISK_NAME)->delete($originalAttributeName);
         $this->model->fillUploadedFileAttributeValue($fileAttributeName, '');
