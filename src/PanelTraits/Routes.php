@@ -27,8 +27,8 @@ trait Routes
      *
      * @return string
      */
-    public function indexRoute()
+    public function indexRoute() : string
     {
-        return empty($this->indexRoute) ? $this->route : $this->indexRoute;
+        return $this->indexRoute ?? $this->route;
     }
 }
