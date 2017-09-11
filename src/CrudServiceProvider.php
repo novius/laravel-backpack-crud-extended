@@ -73,6 +73,9 @@ class CrudServiceProvider extends ServiceProvider
      */
     public function register()
     {
+        // register its dependencies
+        $this->app->register(\Backpack\CRUD\CrudServiceProvider::class);
+
         // Load config
         $configPath = dirname(__DIR__).'/config/'.static::$configName.'.php';
         $this->mergeConfigFrom($configPath, static::$configName);
