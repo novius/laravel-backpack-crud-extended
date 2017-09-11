@@ -2,12 +2,14 @@
 
 namespace Novius\Backpack\CRUD;
 
-use Backpack\CRUD\CrudServiceProvider as BackpackCrudServiceProvider;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Validator;
+use Novius\Backpack\CRUD\Console\PermissionsCommand;
+use Illuminate\Support\ServiceProvider;
 
-class CrudServiceProvider extends BackpackCrudServiceProvider
+class CrudServiceProvider extends ServiceProvider
 {
+    protected static $configName = 'crud-extended';
     /**
      * Perform post-registration booting of services.
      *
@@ -23,21 +25,25 @@ class CrudServiceProvider extends BackpackCrudServiceProvider
          * - vendor/novius/backpack-crud/extended/resources/views/foo.blade.php
          * - vendor/backpack/crud/resources/views/foo.blade.php
          */
-        $this->loadViewsFrom(resource_path('views/vendor/backpack/crud'), 'crud');
-        $this->loadViewsFrom(realpath(dirname(__DIR__).'/resources/views'), 'crud');
-        parent::boot();
+        $this->app['view']->prependNamespace('crud', dirname(__DIR__).'/resources/views');
+        $this->app['view']->prependNamespace('crud', resource_path('views/vendor/backpack/crud'));
 
         /*
          * Add a new namespace "backpackcrud", to allow bypassing overrided views
          *
          * For instance, you can called an original backpack view using "backpackcrud::foo"
          */
-        $this->loadViewsFrom(realpath(dirname(__DIR__, 3).'/backpack/crud/src/resources/views'), 'backpackcrud');
+        $this->loadViewsFrom(dirname(__DIR__, 3).'/backpack/crud/src/resources/views', 'backpackcrud');
 
         /*
          * Publish overrided views
          */
         $this->publishes([dirname(__DIR__).'/resources/views' => resource_path('views/vendor/backpack/crud')], 'views');
+
+        /*
+         * Publish config
+         */
+        $this->publishes([dirname(__DIR__).'/config/'.static::$configName.'.php' => config_path(static::$configName.'.php')], 'config');
 
         /*
          * Overrides original CrudPanel
@@ -67,6 +73,14 @@ class CrudServiceProvider extends BackpackCrudServiceProvider
      */
     public function register()
     {
-        parent::register();
+        // Load config
+        $configPath = dirname(__DIR__).'/config/'.static::$configName.'.php';
+        $this->mergeConfigFrom($configPath, static::$configName);
+
+        if ($this->app->runningInConsole()) {
+            $this->commands([
+                PermissionsCommand::class,
+            ]);
+        }
     }
 }

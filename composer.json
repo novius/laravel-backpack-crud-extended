@@ -49,5 +49,15 @@
         "test" : [
             "phpunit"
         ]
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Novius\\Backpack\\CRUD\\CrudServiceProvider"
+            ]
+        }
+    },
+    "config": {
+        "sort-packages": true
     }
 }

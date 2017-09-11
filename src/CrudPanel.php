@@ -5,13 +5,17 @@ namespace Novius\Backpack\CRUD;
 use Backpack\CRUD\CrudPanel as BackpackCrudPanel;
 use Novius\Backpack\CRUD\PanelTraits\Boxes;
 use Novius\Backpack\CRUD\PanelTraits\BoxTabs;
+use Novius\Backpack\CRUD\PanelTraits\Permissions;
 use Novius\Backpack\CRUD\PanelTraits\Routes;
 
 class CrudPanel extends BackpackCrudPanel
 {
     use Boxes;
     use BoxTabs;
+    use Permissions;
     use Routes;
+
+    public $controller; // a reference to the controller from which this CrudPanel was instantiated
 
     protected $langFile;
 

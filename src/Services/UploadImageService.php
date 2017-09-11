@@ -104,48 +104,113 @@ class UploadImageService extends AbstractUploadService
     }
 
     /**
+     * Delete old images
+     *
+     * @param $originalValue
+     * @param string $imageAttributeName
+     * @return bool
+     */
+    protected function deleteOldImage($originalValue, string $imageAttributeName)
+    {
+        // Delete old image :
+        if (!empty($originalValue)) {
+            \Storage::disk(self::STORAGE_DISK_NAME)->delete($originalValue);
+        }
+        // Set path to '' as there is no image in the input :
+        $this->model->fillUploadedImageAttributeValue($imageAttributeName, '');
+
+        return true;
+    }
+
+    /**
+     * Upload new b64 image
+     *
+     * @param string $imageAttributeName
+     * @param string $value
+     * @param $originalValue
+     * @return bool
+     */
+    protected function uploadNewImage(string $imageAttributeName, string $value, $originalValue)
+    {
+        // Upload a new image making it storable :
+        $this->tmpImages[$imageAttributeName] = \Image::make($value);
+        // Delete the old one :
+        if (!empty($originalValue)) {
+            \Storage::disk(self::STORAGE_DISK_NAME)->delete($originalValue);
+        }
+        $this->model->fillUploadedImageAttributeValue($imageAttributeName, '');
+
+        return true;
+    }
+
+    /**
+     * Set new image on disk
+     *
+     * @param string $value
+     * @param string $originalValue
+     * @param string $imageAttributeName
+     * @return bool
+     */
+    protected function setNewImage(string $value, string $originalValue, string $imageAttributeName)
+    {
+        if ($value === $originalValue || starts_with($value, 'http')) {
+            // If the image isn't in b64 or if the image have an absolute path (meaning it's an update) :
+            $this->model->fillUploadedImageAttributeValue($imageAttributeName, $originalValue);
+        } else {
+            $this->model->fillUploadedImageAttributeValue($imageAttributeName, $value);
+        }
+
+        return true;
+    }
+
+    /**
      * Fill Model image attribute with good value
      *
      * @param string $imageAttributeName
      */
     protected function setUploadedImage(string $imageAttributeName)
     {
-        $value = $this->model->{$imageAttributeName};
+        $originalValue = null;
 
-        if (empty($value)) {
-            // Delete old image
+        // Is this image translatable (different image by locale)
+        if ($this->isTranslatable($imageAttributeName)) {
+            $locale = (string) request('locale', '');
+            $value = $this->model->getTranslation($imageAttributeName, $locale);
             if (!empty($this->model->getOriginal($imageAttributeName))) {
-                \Storage::disk(self::STORAGE_DISK_NAME)->delete($this->model->getOriginal($imageAttributeName));
+                $originalValue = json_decode($this->model->getOriginal($imageAttributeName), true);
+                $originalValue = array_get($originalValue, $locale, null);
             }
-            $this->model->fillUploadedImageAttributeValue($imageAttributeName, '');
+        } else {
+            $value = $this->model->{$imageAttributeName};
+            $originalValue = $this->model->getOriginal($imageAttributeName);
+        }
+
+        // Image is removed
+        if (empty($value)) {
+            $this->deleteOldImage($originalValue, $imageAttributeName);
 
             return;
         }
 
+        // A new image is uploaded
         if (starts_with($value, 'data:image')) {
-            // Upload a new image
-            $this->tmpImages[$imageAttributeName] = \Image::make($value);
-            if (empty($this->model->getOriginal($imageAttributeName))) {
-                // No image before
-                $this->model->fillUploadedImageAttributeValue($imageAttributeName, '');
-            } else {
-                // Erase existing image
-                $this->model->fillUploadedImageAttributeValue($imageAttributeName, $this->model->getOriginal($imageAttributeName));
-            }
+            $this->uploadNewImage($imageAttributeName, $value, $originalValue);
 
             return;
         }
 
-        if (ends_with($value, '.jpg') && !empty($this->model->getOriginal($imageAttributeName))) {
-            // Keep same image
-            $this->model->fillUploadedImageAttributeValue($imageAttributeName, $this->model->getOriginal($imageAttributeName));
+        // An image is already uploaded, a new one is uploaded
+        if (ends_with($value, '.jpg') && !empty($originalValue)) {
+            $this->setNewImage($value, $originalValue, $imageAttributeName);
 
             return;
         }
 
+        // No image is uploaded
         if (!ends_with($value, '.jpg')) {
-            // No image uploaded
             $this->model->fillUploadedImageAttributeValue($imageAttributeName, '');
+
+            return;
         }
     }
 }
