@@ -28,13 +28,7 @@ class UploadImageService extends AbstractUploadService
     {
         $this->initModel($model);
         foreach ($this->filesAttributes($this->model->uploadableImages()) as $imageAttribute) {
-            if (method_exists($this->model, 'isTranslatableAttribute')
-                && $this->model->isTranslatableAttribute($imageAttribute)
-            ) {
-                $this->setUploadedImageLang($imageAttribute);
-            } else {
-                $this->setUploadedImage($imageAttribute);
-            }
+            $this->setUploadedImage($imageAttribute);
         }
 
         return true;
@@ -176,46 +170,21 @@ class UploadImageService extends AbstractUploadService
      */
     protected function setUploadedImage(string $imageAttributeName)
     {
-        $value = $this->model->{$imageAttributeName};
+        $originalLocale = null;
 
-        if (empty($value)) {
-            $this->deleteOldImage($this->model->getOriginal($imageAttributeName), $imageAttributeName);
+        if (method_exists($this->model, 'isTranslatableAttribute')
+            && $this->model->isTranslatableAttribute($imageAttributeName)
+        ) {
+            $locale = (string) request('locale', '');
+            $value = $this->model->getTranslation($imageAttributeName, $locale);
 
-            return;
-        }
-
-        if (starts_with($value, 'data:image')) {
-            $this->uploadNewImage($imageAttributeName, $value, $this->model->getOriginal($imageAttributeName));
-
-            return;
-        }
-
-        if (ends_with($value, '.jpg') && !empty($this->model->getOriginal($imageAttributeName))) {
-            $this->setNewImage($value, $this->model->getOriginal($imageAttributeName), $imageAttributeName);
-
-            return;
-        }
-
-        if (!ends_with($value, '.jpg')) {
-            // No image uploaded
-            $this->model->fillUploadedImageAttributeValue($imageAttributeName, '');
-        }
-    }
-
-    /**
-     * Fill Model image attribute with good value associated to the good language
-     *
-     * @param string $imageAttributeName
-     */
-    protected function setUploadedImageLang(string $imageAttributeName)
-    {
-        $locale = (string) request('locale', '');
-        $value = $this->model->getTranslation($imageAttributeName, $locale);
-        $original = $originalLocale = null;
-
-        if (!empty($this->model->getOriginal($imageAttributeName))) {
-            $original = json_decode($this->model->getOriginal($imageAttributeName), true);
-            $originalLocale = array_get($original, $locale, null);
+            if (!empty($this->model->getOriginal($imageAttributeName))) {
+                $original = json_decode($this->model->getOriginal($imageAttributeName), true);
+                $originalLocale = array_get($original, $locale, null);
+            }
+        } else {
+            $value = $this->model->{$imageAttributeName};
+            $originalLocale = $this->model->getOriginal($imageAttributeName);
         }
 
         if (empty($value)) {
@@ -238,6 +207,8 @@ class UploadImageService extends AbstractUploadService
 
         if (!ends_with($value, '.jpg')) {
             $this->model->fillUploadedImageAttributeValue($imageAttributeName, '');
+
+            return;
         }
     }
 }
