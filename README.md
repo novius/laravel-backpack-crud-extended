@@ -269,16 +269,20 @@ $this->crud->addField([
 ]);
 ```
 
-### CRUD : index route
+### CRUD : custom routes
 
-You can set a custom value to index route.
-In that case, "back to all" button and breadcrumb's link on your CRUD will overridden. 
-This route is available with `$crud->indexRoute()`.
+You can set a custom value to some routes.
+
+- Index route : used with "back to all" button or breadcrumb's link. Available with `$crud->indexRoute()`.
+- Reorder route : used with "Reorder button". Available with `$crud->reorderRoute()`.
  
 Example of usage in your CrudController : 
 ```php
 // Set a custom index route
 $this->crud->setIndexRoute('crud.slide.index', ['slideshow' => (int) request('slideshow')]);
+
+// Set a custom reorder route
+$this->crud->setReorderRoute('crud.slide.reorder', ['slideshow' => (int) request('slideshow')]);
 ```
 
 ## Testing
