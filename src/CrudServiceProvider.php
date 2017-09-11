@@ -5,9 +5,11 @@ namespace Novius\Backpack\CRUD;
 use Backpack\CRUD\CrudServiceProvider as BackpackCrudServiceProvider;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Validator;
+use Novius\Backpack\CRUD\Console\PermissionsCommand;
 
 class CrudServiceProvider extends BackpackCrudServiceProvider
 {
+    protected static $configName = 'crud-extended';
     /**
      * Perform post-registration booting of services.
      *
@@ -40,6 +42,11 @@ class CrudServiceProvider extends BackpackCrudServiceProvider
         $this->publishes([dirname(__DIR__).'/resources/views' => resource_path('views/vendor/backpack/crud')], 'views');
 
         /*
+         * Publish config
+         */
+        $this->publishes([__DIR__.'/../config/'.static::$configName.'.php' => config_path(static::$configName.'.php')], 'config');
+
+        /*
          * Overrides original CrudPanel
          * Now, Novius\Backpack\CRUD\CrudPanel is automatically used by all backpack controllers
          */
@@ -68,5 +75,15 @@ class CrudServiceProvider extends BackpackCrudServiceProvider
     public function register()
     {
         parent::register();
+
+        // Load config
+        $configPath = __DIR__.'/../config/'.static::$configName.'.php';
+        $this->mergeConfigFrom($configPath, static::$configName);
+
+        if ($this->app->runningInConsole()) {
+            $this->commands([
+                PermissionsCommand::class,
+            ]);
+        }
     }
 }
