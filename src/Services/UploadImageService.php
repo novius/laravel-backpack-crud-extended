@@ -106,15 +106,15 @@ class UploadImageService extends AbstractUploadService
     /**
      * Delete old images
      *
-     * @param $originalLocale
+     * @param $originalValue
      * @param string $imageAttributeName
      * @return bool
      */
-    protected function deleteOldImage($originalLocale, string $imageAttributeName)
+    protected function deleteOldImage($originalValue, string $imageAttributeName)
     {
         // Delete old image :
-        if (!empty($originalLocale)) {
-            \Storage::disk(self::STORAGE_DISK_NAME)->delete($originalLocale);
+        if (!empty($originalValue)) {
+            \Storage::disk(self::STORAGE_DISK_NAME)->delete($originalValue);
         }
         // Set path to '' as there is no image in the input :
         $this->model->fillUploadedImageAttributeValue($imageAttributeName, '');
@@ -127,16 +127,16 @@ class UploadImageService extends AbstractUploadService
      *
      * @param string $imageAttributeName
      * @param string $value
-     * @param $originalLocale
+     * @param $originalValue
      * @return bool
      */
-    protected function uploadNewImage(string $imageAttributeName, string $value, $originalLocale)
+    protected function uploadNewImage(string $imageAttributeName, string $value, $originalValue)
     {
         // Upload a new image making it storable :
         $this->tmpImages[$imageAttributeName] = \Image::make($value);
         // Delete the old one :
-        if (!empty($originalLocale)) {
-            \Storage::disk(self::STORAGE_DISK_NAME)->delete($originalLocale);
+        if (!empty($originalValue)) {
+            \Storage::disk(self::STORAGE_DISK_NAME)->delete($originalValue);
         }
         $this->model->fillUploadedImageAttributeValue($imageAttributeName, '');
 
@@ -147,15 +147,15 @@ class UploadImageService extends AbstractUploadService
      * Set new image on disk
      *
      * @param string $value
-     * @param string $originalLocale
+     * @param string $originalValue
      * @param string $imageAttributeName
      * @return bool
      */
-    protected function setNewImage(string $value, string $originalLocale, string $imageAttributeName)
+    protected function setNewImage(string $value, string $originalValue, string $imageAttributeName)
     {
-        if ($value === $originalLocale || starts_with($value, 'http')) {
+        if ($value === $originalValue || starts_with($value, 'http')) {
             // If the image isn't in b64 or if the image have an absolute path (meaning it's an update) :
-            $this->model->fillUploadedImageAttributeValue($imageAttributeName, $originalLocale);
+            $this->model->fillUploadedImageAttributeValue($imageAttributeName, $originalValue);
         } else {
             $this->model->fillUploadedImageAttributeValue($imageAttributeName, $value);
         }
@@ -206,7 +206,7 @@ class UploadImageService extends AbstractUploadService
             return;
         }
 
-        //
+        // No image is uploaded
         if (!ends_with($value, '.jpg')) {
             $this->model->fillUploadedImageAttributeValue($imageAttributeName, '');
 
