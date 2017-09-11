@@ -21,8 +21,7 @@
 
 @section('content')
     <?php
-    function tree_element_overrided($entry, $key, $all_entries, $crud)
-    {
+    $treeElementFunction = function ($entry, $key, $all_entries, $crud) use ($treeElementFunction) {
         if (!isset($entry->tree_element_shown)) {
             // mark the element as shown
             $all_entries[$key]->tree_element_shown = true;
@@ -46,7 +45,7 @@
             if (count($children)) {
                 echo '<ol>';
                 foreach ($children as $key => $child) {
-                    $children[$key] = tree_element_overrided($child, $child->getKey(), $all_entries, $crud);
+                    $children[$key] = $treeElementFunction($child, $child->getKey(), $all_entries, $crud);
                 }
                 echo '</ol>';
             }
@@ -81,7 +80,7 @@
                             return $item->parent_id == 0;
                         });
                         foreach ($root_entries as $key => $entry) {
-                            $root_entries[$key] = tree_element_overrided($entry, $key, $all_entries, $crud);
+                            $root_entries[$key] = $treeElementFunction($entry, $key, $all_entries, $crud);
                         }
                         ?>
                     </ol>
