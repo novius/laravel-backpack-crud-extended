@@ -170,41 +170,43 @@ class UploadImageService extends AbstractUploadService
      */
     protected function setUploadedImage(string $imageAttributeName)
     {
-        $originalLocale = null;
+        $originalValue = null;
 
-        if (method_exists($this->model, 'isTranslatableAttribute')
-            && $this->model->isTranslatableAttribute($imageAttributeName)
-        ) {
+        // Is this image translatable (different image by locale)
+        if ($this->isTranslatable($imageAttributeName)) {
             $locale = (string) request('locale', '');
             $value = $this->model->getTranslation($imageAttributeName, $locale);
-
             if (!empty($this->model->getOriginal($imageAttributeName))) {
-                $original = json_decode($this->model->getOriginal($imageAttributeName), true);
-                $originalLocale = array_get($original, $locale, null);
+                $originalValue = json_decode($this->model->getOriginal($imageAttributeName), true);
+                $originalValue = array_get($originalValue, $locale, null);
             }
         } else {
             $value = $this->model->{$imageAttributeName};
-            $originalLocale = $this->model->getOriginal($imageAttributeName);
+            $originalValue = $this->model->getOriginal($imageAttributeName);
         }
 
+        // Image is removed
         if (empty($value)) {
-            $this->deleteOldImage($originalLocale, $imageAttributeName);
+            $this->deleteOldImage($originalValue, $imageAttributeName);
 
             return;
         }
 
+        // A new image is uploaded
         if (starts_with($value, 'data:image')) {
-            $this->uploadNewImage($imageAttributeName, $value, $originalLocale);
+            $this->uploadNewImage($imageAttributeName, $value, $originalValue);
 
             return;
         }
 
-        if (ends_with($value, '.jpg') && !empty($originalLocale)) {
-            $this->setNewImage($value, $originalLocale, $imageAttributeName);
+        // An image is already uploaded, a new one is uploaded
+        if (ends_with($value, '.jpg') && !empty($originalValue)) {
+            $this->setNewImage($value, $originalValue, $imageAttributeName);
 
             return;
         }
 
+        //
         if (!ends_with($value, '.jpg')) {
             $this->model->fillUploadedImageAttributeValue($imageAttributeName, '');
 
