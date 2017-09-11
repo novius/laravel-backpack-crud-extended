@@ -288,7 +288,7 @@ $this->crud->setReorderRoute('crud.slide.reorder', ['slideshow' => (int) request
 ## Testing
 
 Run the tests with:
-Add 
+
 ```bash
 ./test.sh
 ```
