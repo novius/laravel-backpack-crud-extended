@@ -52,4 +52,18 @@ abstract class AbstractUploadService
     {
         $this->model = $model;
     }
+
+    /**
+     * Check if attibute is translatable
+     *
+     * @param String $AttributeName
+     */
+    protected function isTranslatable(string $AttributeName)
+    {
+        if (method_exists($this->model, 'isTranslatableAttribute')) {
+            return $this->model->isTranslatableAttribute($AttributeName);
+        }
+
+        return false;
+    }
 }

@@ -30,9 +30,7 @@ class UploadFileService extends AbstractUploadService
     {
         $this->initModel($model);
         foreach ($this->filesAttributes($this->model->uploadableFiles()) as $fileAttribute) {
-            if (method_exists($this->model, 'isTranslatableAttribute')
-                && $this->model->isTranslatableAttribute($fileAttribute)
-            ) {
+            if ($this->isTranslatable($fileAttribute)) {
                 $this->setUploadedFileLang($fileAttribute);
             } else {
                 $this->setUploadedFile($fileAttribute);
