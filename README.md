@@ -10,6 +10,23 @@ To do this without any modification on your controller or others package, this p
 - extends CrudPanel class.
 
 
+## Table of Contents
+
+- [Installation](#installation)
+	- [Publish views](#publish-views)
+- [Usage & Features](#usage--features)
+	- [CRUD Boxes](#crud-boxes)
+	- [Fields Drivers](#fields-drivers)
+	- [Language / i18n](#language--i18n)
+	- [Upload Field : UploadableFile Trait](#upload-field--uploadablefile-trait)
+	- [Upload Field : file_upload_crud validation rule](#upload-field--file_upload_crud-validation-rule)
+	- [Image Field : UploadableImage Trait](#image-field--uploadableimage-trait)
+- [Testing](#testing)
+- [Lint](#lint)
+- [Contributing](#contributing)
+- [Licence](#licence)
+
+
 ## Installation
 
 In your terminal:
