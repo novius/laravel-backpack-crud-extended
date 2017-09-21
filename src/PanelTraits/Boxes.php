@@ -6,6 +6,7 @@ trait Boxes
 {
     public $sideBoxesEnabled = false;
     public $boxesOptions = [];
+    public $defaultBox = null;
 
     public function enableSideBoxes() : bool
     {
@@ -41,6 +42,11 @@ trait Boxes
     public function getLastBox()
     {
         $boxes = $this->getBoxes();
+
+        // A default box is manually defined, we have to return it
+        if ($this->defaultBox !== null) {
+            return $this->defaultBox;
+        }
 
         if (count($boxes)) {
             return last($boxes);
@@ -106,11 +112,22 @@ trait Boxes
         return $boxOptions;
     }
 
+    public function setDefaultBox(string $defaultBoxName) : void
+    {
+        $this->defaultBox = $defaultBoxName;
+    }
+
     public function getBoxes($columnFilter = null) : array
     {
         $boxes = [];
         $fields = $this->getCurrentFields();
 
+        // If DefaultBox is defined manually, we have to add it
+        if ($this->defaultBox !== null && ($columnFilter === 'side' xor ! $this->getBoxOptions($this->defaultBox)['side'])) {
+            $boxes[] = $this->defaultBox;
+        }
+
+        // Find all boxes using fields
         collect($fields)
             ->filter(function ($value, $key) {
                 return isset($value['box']);
@@ -123,7 +140,7 @@ trait Boxes
                 }
             });
 
-        // Default Box
+        // Add an automatic DefaultBox if needle
         if (empty($boxes) && $columnFilter !== 'side') {
             $boxes[] = ucfirst($this->entity_name);
         }
