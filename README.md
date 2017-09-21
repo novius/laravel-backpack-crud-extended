@@ -120,6 +120,12 @@ $this->crud->setBoxOptions('Details', [
 
 If you forget to specify a tab name for a field, Backpack will place it in the last box.
 
+You can specify manually a default box in the crud file.
+If your field doesn't have the box attribute, this field will be displayed in this default box.
+
+```php
+$this->crud->setDefaultBox('YourBoxName');
+```
 
 ### Fields Drivers
 
