@@ -101,21 +101,24 @@ class UploadImageService extends AbstractUploadService
     {
         $this->initModel($model);
         foreach ($this->filesAttributes($this->model->uploadableImages()) as $imageAttribute) {
-            \Storage::disk(self::STORAGE_DISK_NAME)->delete($this->model->{$imageAttribute});
-            $this->afterImageDeleted($imageAttribute, $this->model->{$imageAttribute});
+            $this->deleteImage($imageAttribute, $this->model->{$imageAttribute});
         }
 
         return true;
     }
 
     /**
-     * Performs custom actions after image deletion
+     * Delete image file
      *
      * @param string $imageAttributeName
      * @param string $imageValue
      */
-    protected function afterImageDeleted(string $imageAttributeName, string $imageValue)
+    protected function deleteImage(string $imageAttributeName, string $imageValue)
     {
+        // Delete image on disk
+        \Storage::disk(self::STORAGE_DISK_NAME)->delete($imageValue);
+
+        // Performs custom actions after image deletion
         $imagePath = \Storage::disk(self::STORAGE_DISK_NAME)->getDriver()->getAdapter()->getPathPrefix().$imageValue;
         $this->model->imagePathDeleted($imagePath, $imageAttributeName, self::STORAGE_DISK_NAME);
     }
@@ -131,8 +134,7 @@ class UploadImageService extends AbstractUploadService
     {
         // Delete old image :
         if (!empty($originalValue)) {
-            \Storage::disk(self::STORAGE_DISK_NAME)->delete($originalValue);
-            $this->afterImageDeleted($imageAttributeName, $originalValue);
+            $this->deleteImage($imageAttributeName, $originalValue);
         }
         // Set path to '' as there is no image in the input :
         $this->model->fillUploadedImageAttributeValue($imageAttributeName, '');
@@ -154,8 +156,7 @@ class UploadImageService extends AbstractUploadService
         $this->tmpImages[$imageAttributeName] = \Image::make($value);
         // Delete the old one :
         if (!empty($originalValue)) {
-            \Storage::disk(self::STORAGE_DISK_NAME)->delete($originalValue);
-            $this->afterImageDeleted($imageAttributeName, $originalValue);
+            $this->deleteImage($imageAttributeName, $originalValue);
         }
         $this->model->fillUploadedImageAttributeValue($imageAttributeName, '');
 
