@@ -52,7 +52,7 @@ trait UploadableImage
      * @param string $diskName
      * @return bool
      */
-    public function imagePathSaved(string $imagePath, string $imageAttributeName = null, string $diskName = null)
+    public function imagePathSaved(string $imagePath, string $imageAttributeName = null, string $diskName = null) : bool
     {
         return true;
     }
@@ -65,7 +65,7 @@ trait UploadableImage
      * @param string|null $diskName
      * @return bool
      */
-    public function imagePathDeleted(string $imagePath, string $imageAttributeName = null, string $diskName = null)
+    public function imagePathDeleted(string $imagePath, string $imageAttributeName = null, string $diskName = null) : bool
     {
         return true;
     }

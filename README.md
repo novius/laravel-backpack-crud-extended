@@ -270,12 +270,6 @@ class Article extends \Backpack\NewsCRUD\app\Models\Article
 
     /**
      * You might like to perform some custom actions on your image after saving it.
-     * For instance, create a thumbnail using the trait HasMediaTrait.
-     * To get this:
-     *  1. You must override this method.
-     *  2. The configuration file medialibrary.php must defines an existing filesystem and image driver:
-     *      'defaultFilesystem' => 'public',
-     *      'image_driver' => 'imagick',
      */
     public function imagePathSaved(string $imagePath, string $imageAttributeName = null, string $diskName = null)
     {
@@ -296,7 +290,23 @@ class Article extends \Backpack\NewsCRUD\app\Models\Article
     }
 }
 
+
 ```
+
+If you like to use imagePathSaved and the medialibrary of Spatie, you will need :
+
+1. Override this method and adds whatever actions you prefer.
+2. The configuration file _medialibrary.php_ should define an existing file system and image driver:
+```
+'defaultFilesystem' => 'public',
+'image_driver' => 'imagick',
+```
+3. Your _composer.json_ should include:
+```
+"spatie/laravel-medialibrary": "your.version.here"
+```
+___  
+  
 
 ```php
 // ArticleCrudController

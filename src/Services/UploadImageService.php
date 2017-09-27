@@ -104,7 +104,7 @@ class UploadImageService extends AbstractUploadService
             \Storage::disk(self::STORAGE_DISK_NAME)->delete($this->model->{$imageAttribute});
 
             // Performs custom actions after deleting
-            $imagePath = Storage::disk(self::STORAGE_DISK_NAME)->getDriver()->getAdapter()->getPathPrefix().$this->model->{$imageAttribute};
+            $imagePath = \Storage::disk(self::STORAGE_DISK_NAME)->getDriver()->getAdapter()->getPathPrefix().$this->model->{$imageAttribute};
             $this->model->imagePathDeleted($imagePath, $imageAttribute, self::STORAGE_DISK_NAME);
         }
 
