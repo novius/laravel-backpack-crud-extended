@@ -111,16 +111,19 @@ class UploadImageService extends AbstractUploadService
      * Delete image file
      *
      * @param string $imageAttributeName
-     * @param string $imageValue
+     * @param string $imageRelativePath
+     * @return bool
      */
-    protected function deleteImage(string $imageAttributeName, string $imageValue)
+    protected function deleteImage(string $imageAttributeName, string $imageRelativePath)
     {
         // Delete image on disk
-        \Storage::disk(self::STORAGE_DISK_NAME)->delete($imageValue);
+        \Storage::disk(self::STORAGE_DISK_NAME)->delete($imageRelativePath);
 
         // Performs custom actions after image deletion
-        $imagePath = \Storage::disk(self::STORAGE_DISK_NAME)->getDriver()->getAdapter()->getPathPrefix().$imageValue;
+        $imagePath = \Storage::disk(self::STORAGE_DISK_NAME)->getDriver()->getAdapter()->getPathPrefix().$imageRelativePath;
         $this->model->imagePathDeleted($imagePath, $imageAttributeName, self::STORAGE_DISK_NAME);
+
+        return true;
     }
 
     /**
