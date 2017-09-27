@@ -286,6 +286,8 @@ class Article extends \Backpack\NewsCRUD\app\Models\Article
      */
     public function imagePathDeleted(string $imagePath, string $imageAttributeName = null, string $diskName = null)
     {
+        $this->clearMediaCollection();
+
         return true;
     }
 }
