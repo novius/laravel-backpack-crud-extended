@@ -114,7 +114,7 @@ class UploadImageService extends AbstractUploadService
      * @param string $imageRelativePath
      * @return bool
      */
-    protected function deleteImage(string $imageAttributeName, string $imageRelativePath)
+    protected function deleteImage(string $imageAttributeName, string $imageRelativePath): bool
     {
         // Delete image on disk
         \Storage::disk(self::STORAGE_DISK_NAME)->delete($imageRelativePath);
