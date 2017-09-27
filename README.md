@@ -267,9 +267,46 @@ class Article extends \Backpack\NewsCRUD\app\Models\Article
             ],
         ];
     }
+
+    /**
+     * You might like to perform some custom actions on your image after saving it.
+     */
+    public function imagePathSaved(string $imagePath, string $imageAttributeName = null, string $diskName = null)
+    {
+        //perfoms some custom actions here
+        $this->addMedia($imagePath)
+            ->preservingOriginal()
+            ->toMediaCollection();
+
+        return true;
+    }
+
+    /**
+     * You might like to perform some custom actions after deleting the image.
+     */
+    public function imagePathDeleted(string $imagePath, string $imageAttributeName = null, string $diskName = null)
+    {
+        return true;
+    }
 }
 
+
 ```
+
+If you like to use imagePathSaved and the medialibrary of Spatie, you will need :
+
+1. Override this method and adds whatever actions you prefer.
+2. The configuration file _medialibrary.php_ should define an existing file system and image driver:
+```
+'defaultFilesystem' => 'public',
+'image_driver' => 'imagick',
+```
+3. Your _composer.json_ should include:
+```
+"spatie/laravel-medialibrary": "your.version.here"
+```
+___  
+  
 
 ```php
 // ArticleCrudController
@@ -294,6 +331,7 @@ $this->crud->addField([
     'prefix' => '/storage/',
 ]);
 ```
+
 
 ### CRUD : custom routes
 
