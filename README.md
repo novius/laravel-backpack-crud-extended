@@ -267,6 +267,25 @@ class Article extends \Backpack\NewsCRUD\app\Models\Article
             ],
         ];
     }
+
+    /**
+     * You might like to perform some custom actions on your image after saving it.
+     * For instance, create a thumbnail using the trait HasMediaTrait.
+     * To get this:
+     *  1. You must override this method.
+     *  2. The configuration file medialibrary.php must defines an existing filesystem and image driver:
+     *      'defaultFilesystem' => 'public',
+     *      'image_driver' => 'imagick',
+     */
+    public function imagePathSaved(string $imagePath, string $imageAttributeName = null, string $diskName = null)
+    {
+        //perfoms some custom actions here
+        $this->addMedia($imagePath)
+            ->preservingOriginal()
+            ->toMediaCollection();
+
+        return true;
+    }
 }
 
 ```
@@ -294,6 +313,7 @@ $this->crud->addField([
     'prefix' => '/storage/',
 ]);
 ```
+
 
 ### CRUD : custom routes
 

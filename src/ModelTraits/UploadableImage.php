@@ -45,6 +45,19 @@ trait UploadableImage
     }
 
     /**
+     * Called after image saved on disk
+     *
+     * @param string $imageAttributeName
+     * @param string $imagePath
+     * @param string $diskName
+     * @return bool
+     */
+    public function imagePathSaved(string $imagePath, string $imageAttributeName = null, string $diskName = null)
+    {
+        return true;
+    }
+
+    /**
      * Get model attributes name for image upload
      * Simple example: return ['name' => 'image', slug' => 'title'];
      * With multiple images: return [['name' => 'image', slug' => 'title'], ['name' => 'thumbnail', 'slug' => 'title']];

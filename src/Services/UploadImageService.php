@@ -58,6 +58,10 @@ class UploadImageService extends AbstractUploadService
             // 3. Save the path to the database
             $this->model->fillUploadedImageAttributeValue($imageAttributeName, $filePath);
 
+            // 4. Performs custom actions on image after saving
+            $imagePath  = Storage::disk(self::STORAGE_DISK_NAME)->getDriver()->getAdapter()->getPathPrefix().$filePath;
+            $this->model->imagePathSaved($imagePath, $imageAttributeName, self::STORAGE_DISK_NAME);
+
             if (isset($this->tmpImages[$imageAttributeName])) {
                 unset($this->tmpImages[$imageAttributeName]);
             }
