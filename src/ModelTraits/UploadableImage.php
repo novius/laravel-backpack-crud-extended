@@ -58,6 +58,19 @@ trait UploadableImage
     }
 
     /**
+     * Called after image deleted on disk
+     *
+     * @param string $imagePath
+     * @param string|null $imageAttributeName
+     * @param string|null $diskName
+     * @return bool
+     */
+    public function imagePathDeleted(string $imagePath, string $imageAttributeName = null, string $diskName = null)
+    {
+        return true;
+    }
+
+    /**
      * Get model attributes name for image upload
      * Simple example: return ['name' => 'image', slug' => 'title'];
      * With multiple images: return [['name' => 'image', slug' => 'title'], ['name' => 'thumbnail', 'slug' => 'title']];

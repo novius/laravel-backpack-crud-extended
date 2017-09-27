@@ -286,6 +286,14 @@ class Article extends \Backpack\NewsCRUD\app\Models\Article
 
         return true;
     }
+
+    /**
+     * You might like to perform some custom actions after deleting the image.
+     */
+    public function imagePathDeleted(string $imagePath, string $imageAttributeName = null, string $diskName = null)
+    {
+        return true;
+    }
 }
 
 ```
