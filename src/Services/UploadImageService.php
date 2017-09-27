@@ -102,13 +102,22 @@ class UploadImageService extends AbstractUploadService
         $this->initModel($model);
         foreach ($this->filesAttributes($this->model->uploadableImages()) as $imageAttribute) {
             \Storage::disk(self::STORAGE_DISK_NAME)->delete($this->model->{$imageAttribute});
-
-            // Performs custom actions after deleting
-            $imagePath = \Storage::disk(self::STORAGE_DISK_NAME)->getDriver()->getAdapter()->getPathPrefix().$this->model->{$imageAttribute};
-            $this->model->imagePathDeleted($imagePath, $imageAttribute, self::STORAGE_DISK_NAME);
+            $this->afterImageDeleted($imageAttribute, $this->model->{$imageAttribute});
         }
 
         return true;
+    }
+
+    /**
+     * Performs custom actions after image deletion
+     *
+     * @param string $imageAttributeName
+     * @param string $imageValue
+     */
+    protected function afterImageDeleted(string $imageAttributeName, string $imageValue)
+    {
+        $imagePath = \Storage::disk(self::STORAGE_DISK_NAME)->getDriver()->getAdapter()->getPathPrefix().$imageValue;
+        $this->model->imagePathDeleted($imagePath, $imageAttributeName, self::STORAGE_DISK_NAME);
     }
 
     /**
@@ -123,6 +132,7 @@ class UploadImageService extends AbstractUploadService
         // Delete old image :
         if (!empty($originalValue)) {
             \Storage::disk(self::STORAGE_DISK_NAME)->delete($originalValue);
+            $this->afterImageDeleted($imageAttributeName, $originalValue);
         }
         // Set path to '' as there is no image in the input :
         $this->model->fillUploadedImageAttributeValue($imageAttributeName, '');
@@ -145,6 +155,7 @@ class UploadImageService extends AbstractUploadService
         // Delete the old one :
         if (!empty($originalValue)) {
             \Storage::disk(self::STORAGE_DISK_NAME)->delete($originalValue);
+            $this->afterImageDeleted($imageAttributeName, $originalValue);
         }
         $this->model->fillUploadedImageAttributeValue($imageAttributeName, '');
 
