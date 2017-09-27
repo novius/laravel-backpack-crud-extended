@@ -158,12 +158,12 @@ class UploadFileService extends AbstractUploadService
 
         // If a new file is uploaded, delete old file from the disk
         if ($request->hasFile($fileAttributeName) && !empty($this->model->getOriginal($fileAttributeName)) && is_string($fileAttributeValue)) {
-            $this->deleteOdlFile($this->model->getOriginal($fileAttributeName), $fileAttributeName);
+            $this->deleteOldFile($this->model->getOriginal($fileAttributeName), $fileAttributeName);
         }
 
         // if the file input is empty, delete the file from the disk
         if (!$request->hasFile($fileAttributeName) && $request->get($fileAttributeName) === null && !empty($this->model->getOriginal($fileAttributeName))) {
-            $this->deleteOdlFile($this->model->getOriginal($fileAttributeName), $fileAttributeName);
+            $this->deleteOldFile($this->model->getOriginal($fileAttributeName), $fileAttributeName);
         }
 
         // if a new file is uploaded, store it on disk and its filename in the database
@@ -196,12 +196,12 @@ class UploadFileService extends AbstractUploadService
 
         // If a new file is uploaded, delete old file from the disk
         if ($request->hasFile($fileAttributeName) && !empty($originalLocale) && is_array($fileAttributeValue)) {
-            $this->deleteOdlFile($originalLocale, $fileAttributeName);
+            $this->deleteOldFile($originalLocale, $fileAttributeName);
         }
 
         // if the file input is empty, delete the file from the disk
         if (!$request->hasFile($fileAttributeName) && $request->get($fileAttributeName) === null && !empty($originalLocale)) {
-            $this->deleteOdlFile($originalLocale, $fileAttributeName);
+            $this->deleteOldFile($originalLocale, $fileAttributeName);
         }
 
         // if a new file is uploaded, store it on disk and its filename in the database
