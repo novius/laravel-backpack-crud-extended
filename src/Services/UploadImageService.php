@@ -10,6 +10,8 @@ use Illuminate\Database\Eloquent\Model;
  */
 class UploadImageService extends AbstractUploadService
 {
+    const R_MD5_MATCH = '/\?v=[a-f0-9]{32}$/';
+
     /**
      * Filled with images during model saving
      * Images will be used on Model "saved" event
@@ -223,14 +225,14 @@ class UploadImageService extends AbstractUploadService
         }
 
         // An image is already uploaded, a new one is uploaded
-        if (ends_with($value, '.jpg') && !empty($originalValue)) {
+        if (preg_match(self::R_MD5_MATCH, $value) && !empty($originalValue)) {
             $this->setNewImage($value, $originalValue, $imageAttributeName);
 
             return;
         }
 
         // No image is uploaded
-        if (!ends_with($value, '.jpg')) {
+        if (!preg_match(self::R_MD5_MATCH, $value)) {
             $this->model->fillUploadedImageAttributeValue($imageAttributeName, '');
 
             return;
