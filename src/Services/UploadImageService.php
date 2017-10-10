@@ -11,6 +11,13 @@ use Illuminate\Database\Eloquent\Model;
 class UploadImageService extends AbstractUploadService
 {
     /**
+     * Allowed image extensions
+     *
+     * @var array
+     */
+    protected $allowed_extensions = ['jpeg', 'jpg'];
+
+    /**
      * Filled with images during model saving
      * Images will be used on Model "saved" event
      *
@@ -208,6 +215,9 @@ class UploadImageService extends AbstractUploadService
             $originalValue = $this->model->getOriginal($imageAttributeName);
         }
 
+        $path_parts = pathinfo($value);
+        $path_extension = array_get($path_parts, 'extension');
+
         // Image is removed
         if (empty($value)) {
             $this->deleteOldImage($originalValue, $imageAttributeName);
@@ -223,14 +233,14 @@ class UploadImageService extends AbstractUploadService
         }
 
         // An image is already uploaded, a new one is uploaded
-        if (ends_with($value, '.jpg') && !empty($originalValue)) {
+        if (str_contains($path_extension, $this->allowed_extensions) && !empty($originalValue)) {
             $this->setNewImage($value, $originalValue, $imageAttributeName);
 
             return;
         }
 
         // No image is uploaded
-        if (!ends_with($value, '.jpg')) {
+        if (!str_contains($path_extension, $this->allowed_extensions)) {
             $this->model->fillUploadedImageAttributeValue($imageAttributeName, '');
 
             return;
