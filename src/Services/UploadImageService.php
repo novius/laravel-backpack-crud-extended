@@ -240,7 +240,7 @@ class UploadImageService extends AbstractUploadService
         }
 
         // No image is uploaded
-        if (str_contains($path_extension, $this->allowed_extensions)) {
+        if (!str_contains($path_extension, $this->allowed_extensions)) {
             $this->model->fillUploadedImageAttributeValue($imageAttributeName, '');
 
             return;
