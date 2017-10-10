@@ -39,12 +39,17 @@ trait UploadableImage
             && $this->isTranslatableAttribute($imageAttributeName)
         ) {
             $this->setTranslation($imageAttributeName, (string) request('locale', $this->getLocale()), $path); // Default value is relevant when using seeders or any environment where we dont have acces to "request".
+
+            if (!empty($path)) {
+                $path = preg_replace('/\?v=.*/', '', $path);
+                $this->setTranslation($imageAttributeName, (string) request('locale', $this->getLocale()), $path.'?v='.uniqid());
+            }
         } else {
             $this->{$imageAttributeName} = $path;
 
             if (!empty($path)) {
                 $path = preg_replace('/\?v=.*/', '', $path);
-                $this->{$imageAttributeName} = $path.'?v='.md5(time());
+                $this->{$imageAttributeName} = $path.'?v='.uniqid();
             }
         }
     }

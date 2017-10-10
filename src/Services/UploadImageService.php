@@ -3,15 +3,13 @@
 namespace Novius\Backpack\CRUD\Services;
 
 use Illuminate\Database\Eloquent\Model;
-
+use Illuminate\Support\Facades\Log;
 /**
  * Class UploadImageService
  * @package Novius\Backpack\CRUD\Services
  */
 class UploadImageService extends AbstractUploadService
 {
-    const R_MD5_MATCH = '/\?v=[a-f0-9]{32}$/';
-
     /**
      * Filled with images during model saving
      * Images will be used on Model "saved" event
@@ -210,6 +208,10 @@ class UploadImageService extends AbstractUploadService
             $originalValue = $this->model->getOriginal($imageAttributeName);
         }
 
+        $path_parts = pathinfo($value);
+        $path_extension = !empty($path_parts['extension']) ? $path_parts['extension'] : false;
+        $allowed_extensions = ['gif', 'png', 'jpeg', 'jpg'];
+
         // Image is removed
         if (empty($value)) {
             $this->deleteOldImage($originalValue, $imageAttributeName);
@@ -225,14 +227,14 @@ class UploadImageService extends AbstractUploadService
         }
 
         // An image is already uploaded, a new one is uploaded
-        if (preg_match(self::R_MD5_MATCH, $value) && !empty($originalValue)) {
+        if (str_contains($path_extension, $allowed_extensions) && !empty($originalValue)) {
             $this->setNewImage($value, $originalValue, $imageAttributeName);
 
             return;
         }
 
         // No image is uploaded
-        if (!preg_match(self::R_MD5_MATCH, $value)) {
+        if (str_contains($path_extension, $allowed_extensions)) {
             $this->model->fillUploadedImageAttributeValue($imageAttributeName, '');
 
             return;
