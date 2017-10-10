@@ -3,13 +3,20 @@
 namespace Novius\Backpack\CRUD\Services;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Facades\Log;
+
 /**
  * Class UploadImageService
  * @package Novius\Backpack\CRUD\Services
  */
 class UploadImageService extends AbstractUploadService
 {
+    /**
+     * Allowed image extensions
+     *
+     * @var array
+     */
+    protected $allowed_extensions = ['gif', 'png', 'jpeg', 'jpg'];
+
     /**
      * Filled with images during model saving
      * Images will be used on Model "saved" event
@@ -210,7 +217,6 @@ class UploadImageService extends AbstractUploadService
 
         $path_parts = pathinfo($value);
         $path_extension = !empty($path_parts['extension']) ? $path_parts['extension'] : false;
-        $allowed_extensions = ['gif', 'png', 'jpeg', 'jpg'];
 
         // Image is removed
         if (empty($value)) {
@@ -227,14 +233,14 @@ class UploadImageService extends AbstractUploadService
         }
 
         // An image is already uploaded, a new one is uploaded
-        if (str_contains($path_extension, $allowed_extensions) && !empty($originalValue)) {
+        if (str_contains($path_extension, $this->allowed_extensions) && !empty($originalValue)) {
             $this->setNewImage($value, $originalValue, $imageAttributeName);
 
             return;
         }
 
         // No image is uploaded
-        if (str_contains($path_extension, $allowed_extensions)) {
+        if (str_contains($path_extension, $this->allowed_extensions)) {
             $this->model->fillUploadedImageAttributeValue($imageAttributeName, '');
 
             return;
