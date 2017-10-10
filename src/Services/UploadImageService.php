@@ -15,7 +15,7 @@ class UploadImageService extends AbstractUploadService
      *
      * @var array
      */
-    protected $allowed_extensions = ['jpeg', 'jpg'];
+    protected $allowed_extensions = ['jpeg', 'jpg', 'gif', 'png'];
 
     /**
      * Filled with images during model saving
@@ -57,7 +57,7 @@ class UploadImageService extends AbstractUploadService
 
         foreach ($this->tmpImages as $imageAttributeName => $image) {
             // 1. Get image path
-            $filePath = $this->getImagePath($imageAttributeName);
+            $filePath = $this->getImagePath($imageAttributeName, $image->mime);
 
             // 2. Store the image on disk.
             \Storage::disk(self::STORAGE_DISK_NAME)->put($filePath, $image->stream());
@@ -83,16 +83,18 @@ class UploadImageService extends AbstractUploadService
      * @param $imageAttributeName
      * @return string
      */
-    protected function getImagePath(string $imageAttributeName): string
+    protected function getImagePath(string $imageAttributeName, string $mime): string
     {
+        $extension = str_replace_first('image/', '.', $mime);
+
         $folderName = snake_case(class_basename(get_class($this->model)));
         $destination_path = $folderName.'/'.$this->model->getKey().'/'.$imageAttributeName;
         $imageSlugAttribute = array_get($this->slugAttributes($this->model->uploadableImages()), $imageAttributeName);
 
         // 1. Generate a filename.
-        $filename = md5(time()).'.jpg';
+        $filename = md5(time()).$extension;
         if (!empty($imageSlugAttribute)) {
-            $filename = str_slug($this->model->{$imageSlugAttribute}).'.jpg';
+            $filename = str_slug($this->model->{$imageSlugAttribute}).$extension;
         }
 
         return $destination_path.'/'.$filename;
