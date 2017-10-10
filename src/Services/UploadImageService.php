@@ -15,7 +15,7 @@ class UploadImageService extends AbstractUploadService
      *
      * @var array
      */
-    protected $allowed_extensions = ['gif', 'png', 'jpeg', 'jpg'];
+    protected $allowed_extensions = ['jpeg', 'jpg'];
 
     /**
      * Filled with images during model saving
@@ -216,7 +216,7 @@ class UploadImageService extends AbstractUploadService
         }
 
         $path_parts = pathinfo($value);
-        $path_extension = !empty($path_parts['extension']) ? $path_parts['extension'] : false;
+        $path_extension = array_get($path_parts, 'extension');
 
         // Image is removed
         if (empty($value)) {
