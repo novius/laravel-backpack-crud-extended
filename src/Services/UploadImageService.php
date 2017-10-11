@@ -234,14 +234,14 @@ class UploadImageService extends AbstractUploadService
         }
 
         // An image is already uploaded, a new one is uploaded
-        if (in_array($pathExtension, $this->allowed_extensions) && !empty($originalValue)) {
+        if (str_contains($pathExtension, $this->allowed_extensions) && !empty($originalValue)) {
             $this->setNewImage($value, $originalValue, $imageAttributeName);
 
             return;
         }
 
         // No image is uploaded
-        if (!in_array($pathExtension, $this->allowed_extensions)) {
+        if (!str_contains($pathExtension, $this->allowed_extensions)) {
             $this->model->fillUploadedImageAttributeValue($imageAttributeName, '');
 
             return;
