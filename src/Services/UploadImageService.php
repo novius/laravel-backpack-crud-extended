@@ -217,8 +217,7 @@ class UploadImageService extends AbstractUploadService
             $originalValue = $this->model->getOriginal($imageAttributeName);
         }
 
-        $path_parts = pathinfo($value);
-        $path_extension = array_get($path_parts, 'extension');
+        $pathExtension = pathinfo($value, PATHINFO_EXTENSION);
 
         // Image is removed
         if (empty($value)) {
@@ -235,14 +234,14 @@ class UploadImageService extends AbstractUploadService
         }
 
         // An image is already uploaded, a new one is uploaded
-        if (str_contains($path_extension, $this->allowed_extensions) && !empty($originalValue)) {
+        if (in_array($pathExtension, $this->allowed_extensions) && !empty($originalValue)) {
             $this->setNewImage($value, $originalValue, $imageAttributeName);
 
             return;
         }
 
         // No image is uploaded
-        if (!str_contains($path_extension, $this->allowed_extensions)) {
+        if (!in_array($pathExtension, $this->allowed_extensions)) {
             $this->model->fillUploadedImageAttributeValue($imageAttributeName, '');
 
             return;
