@@ -15,7 +15,7 @@ class UploadImageService extends AbstractUploadService
      *
      * @var array
      */
-    protected $allowed_extensions = ['jpeg', 'jpg', 'gif', 'png'];
+    protected $allowedExtensions = ['jpeg', 'jpg', 'gif', 'png'];
 
     /**
      * Filled with images during model saving
@@ -234,14 +234,14 @@ class UploadImageService extends AbstractUploadService
         }
 
         // An image is already uploaded, a new one is uploaded
-        if (starts_with($pathExtension, $this->allowed_extensions) && !empty($originalValue)) {
+        if (starts_with($pathExtension, $this->allowedExtensions) && !empty($originalValue)) {
             $this->setNewImage($value, $originalValue, $imageAttributeName);
 
             return;
         }
 
         // No image is uploaded
-        if (!starts_with($pathExtension, $this->allowed_extensions)) {
+        if (!starts_with($pathExtension, $this->allowedExtensions)) {
             $this->model->fillUploadedImageAttributeValue($imageAttributeName, '');
 
             return;
