@@ -44,7 +44,7 @@
     },
     "scripts": {
         "lint" : [
-            "php-cs-fixer fix --dry-run --config .php_cs -vv --diff  --allow-risky=yes"
+            "php-cs-fixer fix --dry-run --config .php_cs -vv --diff --allow-risky=yes"
         ],
         "test" : [
             "phpunit"
