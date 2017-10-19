@@ -1,5 +1,5 @@
 {{-- Show the inputs --}}
-@foreach ($fields as $field)
+@foreach ($boxFields as $field)
     <!-- load the view from the application if it exists, otherwise load the one in the package -->
     @if(strpos($field['type'], '\\') !== false)
         @include((new $field['type'])->view(), array('field' => $field))

@@ -47,9 +47,9 @@
                 <div class="box-body row">
                     {{-- See if we're using tabs --}}
                     @if ($crud->boxHasTabs($box))
-                        @include('crud::inc.show_tabbed_fields', ['box' => $box])
+                        @include('crud::inc.show_tabbed_fields', ['fields' => $fields, 'box' => $box])
                     @else
-                        @include('crud::inc.show_fields', ['fields' => $crud->getBoxFields($box)])
+                        @include('crud::inc.show_fields', ['fields' => $fields, 'boxFields' => $crud->getBoxFields($box)])
                     @endif
                 </div>
             </div>
@@ -66,7 +66,7 @@
                         </div>
                     </div>
                     <div class="box-body">
-                        @include('crud::inc.show_fields', ['fields' => $crud->getBoxFields($box)])
+                        @include('crud::inc.show_fields', ['fields' => $fields, 'boxFields' => $crud->getBoxFields($box)])
                     </div>
                 </div>
             @endforeach
