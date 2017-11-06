@@ -1,6 +1,5 @@
 @php
-    if (!isset($field['wrapperAttributes']) || !isset($field['wrapperAttributes']['class']))
-    {
+    if (!isset($field['wrapperAttributes']) || !isset($field['wrapperAttributes']['class'])) {
         $field['wrapperAttributes']['class'] = "form-group col-md-12 image";
     }
 @endphp
