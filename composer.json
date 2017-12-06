@@ -24,13 +24,13 @@
         }
     ],
     "require": {
-        "php": ">=7.0",
-        "backpack/crud": "~3.2.15"
+        "php": ">=7.1",
+        "backpack/crud": "~3.3.0"
     },
     "require-dev": {
-        "friendsofphp/php-cs-fixer": "~2.4.0",
-        "phpunit/phpunit": "~5.7",
-        "orchestra/testbench": "~3.0"
+        "friendsofphp/php-cs-fixer": "~2.8.0",
+        "phpunit/phpunit": "~6.0",
+        "orchestra/testbench": "~3.5"
     },
     "autoload": {
         "psr-4": {
