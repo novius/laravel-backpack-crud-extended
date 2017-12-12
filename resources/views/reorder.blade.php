@@ -21,7 +21,7 @@
 
 @section('content')
     <?php
-    $treeElementFunction = function ($entry, $key, $all_entries, $crud) use ($treeElementFunction) {
+    $treeElementFunction = function ($entry, $key, $all_entries, $crud) use (&$treeElementFunction) {
         if (!isset($entry->tree_element_shown)) {
             // mark the element as shown
             $all_entries[$key]->tree_element_shown = true;
