@@ -274,7 +274,7 @@ class Example extends Model
 
 If you want to perform some custom actions on your image after saving or deleting it :
 
-```
+```php
 namespace App\Models;
 
 use Backpack\CRUD\CrudTrait;
