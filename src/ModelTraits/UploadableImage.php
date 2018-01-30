@@ -35,31 +35,22 @@ trait UploadableImage
      */
     public function fillUploadedImageAttributeValue(string $imageAttributeName, string $path)
     {
-        if (method_exists($this, 'isTranslatableAttribute')
-            && $this->isTranslatableAttribute($imageAttributeName)
-        ) {
-            $this->setTranslation($imageAttributeName, (string) request('locale', $this->getLocale()), $path); // Default value is relevant when using seeders or any environment where we dont have acces to "request".
+        // Generates a unique URI path (for cache bursting)
+        $uniquePath = $this->generateImageUniqueUriPath($path);
 
-            if (!empty($path)) {
-                $path = preg_replace('/\?v=.*/', '', $path);
-                $this->setTranslation($imageAttributeName, (string) request('locale', $this->getLocale()), $path.'?v='.uniqid());
-            }
+        if ($this->isTranslatableImageAttribute($imageAttributeName)) {
+            $this->setTranslation($imageAttributeName, $this->getLocale(), $uniquePath);
         } else {
-            $this->{$imageAttributeName} = $path;
-
-            if (!empty($path)) {
-                $path = preg_replace('/\?v=.*/', '', $path);
-                $this->{$imageAttributeName} = $path.'?v='.uniqid();
-            }
+            $this->{$imageAttributeName} = $uniquePath;
         }
     }
 
     /**
-     * Called after image saved on disk
+     * Callback triggered after image saved on disk
      *
      * @param string $imageAttributeName
-     * @param string $imagePath
-     * @param string $diskName
+     * @param string|null $imagePath
+     * @param string|null $diskName
      * @return bool
      */
     public function imagePathSaved(string $imagePath, string $imageAttributeName = null, string $diskName = null) : bool
@@ -68,7 +59,7 @@ trait UploadableImage
     }
 
     /**
-     * Called after image deleted on disk
+     * Callback triggered after image deleted on disk
      *
      * @param string $imagePath
      * @param string|null $imageAttributeName
@@ -78,6 +69,43 @@ trait UploadableImage
     public function imagePathDeleted(string $imagePath, string $imageAttributeName = null, string $diskName = null) : bool
     {
         return true;
+    }
+
+    /**
+     * Generates a unique image URI path
+     *
+     * @param string $path
+     * @return string
+     */
+    public function generateImageUniqueUriPath(string $path)
+    {
+        $path = preg_replace('/\?v=.*/i', '', $path);
+        if (!empty($path)) {
+            $path .= '?v='.uniqid();
+        }
+
+        return $path;
+    }
+
+    /**
+     * Checks if the given image attribute name is translatable
+     *
+     * @param string $imageAttributeName
+     * @return bool
+     */
+    public function isTranslatableImageAttribute(string $imageAttributeName)
+    {
+        return $this->canTranslateImage() && $this->isTranslatableAttribute($imageAttributeName);
+    }
+
+    /**
+     * Checks if the model can translate an image
+     *
+     * @return bool
+     */
+    public function canTranslateImage()
+    {
+        return method_exists($this, 'isTranslatableAttribute') && method_exists($this, 'setTranslation');
     }
 
     /**
