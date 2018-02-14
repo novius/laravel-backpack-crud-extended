@@ -78,7 +78,7 @@ class UploadFileService extends AbstractUploadService
         $slugAttributeName = array_get($this->slugAttributes($this->model->uploadableFiles()), $fileAttributeName);
         $filename = md5(time());
         if (!empty($slugAttributeName)) {
-            $filename = str_slug($this->model->{$slugAttributeName});
+            $filename = str_slug($this->model->getAttribute($slugAttributeName));
         }
         $filename .= '.'.$file->getClientOriginalExtension();
 
@@ -107,7 +107,7 @@ class UploadFileService extends AbstractUploadService
     {
         $this->initModel($model);
         foreach ($this->filesAttributes($this->model->uploadableFiles()) as $fileAttribute) {
-            \Storage::disk(self::STORAGE_DISK_NAME)->delete($this->model->{$fileAttribute});
+            \Storage::disk(self::STORAGE_DISK_NAME)->delete($this->model->getAttribute($fileAttribute));
         }
 
         return true;
