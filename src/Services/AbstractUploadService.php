@@ -21,6 +21,10 @@ abstract class AbstractUploadService
      */
     protected function filesAttributes(array $uploableFiles): array
     {
+        if (empty($uploableFiles)) {
+            return [];
+        }
+
         if (array_get($uploableFiles, 0) === null) {
             $uploableFiles = [$uploableFiles];
         }
