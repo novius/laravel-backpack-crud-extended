@@ -240,27 +240,63 @@ public function messages()
 
 ### Image Field : `UploadableImage` Trait
 
-If you use Image CRUD Field, you can implement this Trait on your Model to automatically upload / delete image(s) on server.
+If you use the [Image CRUD Field](https://laravel-backpack.readme.io/docs/crud-fields#section-image), you can implement this trait on your model to automatically manage saving and deleting the image on the server.
 
 Example:
 ```php
-// Article Model
+namespace App\Models;
 
-class Article extends \Backpack\NewsCRUD\app\Models\Article
+use Backpack\CRUD\CrudTrait;
+use Illuminate\Database\Eloquent\Model;
+use Novius\Backpack\CRUD\ModelTraits\UploadableImage;
+
+class Example extends Model
 {
-    use Sluggable, SluggableScopeHelpers;
-    use HasTranslations;
+    use CrudTrait;
     use UploadableImage;
 
-    protected $fillable = ['slug', 'title', 'content', 'image', 'status', 'category_id', 'featured', 'date', 'thumbnail'];
-    protected $translatable = ['slug', 'title', 'content'];
+    protected $fillable = ['title', 'image', 'thumbnail'];
 
     public function uploadableImages()
     {
         return [
             [
-                'name' => 'image', // Attribute name where to stock image path
-                'slug' => 'title', // Attribute name to generate image file name (optionnal)
+                'name' => 'image', // The attribute name where to store the image path
+                'slug' => 'title', // The attribute name from which to generate the image file name (optionnal)
+            ],
+            [
+                'name' => 'thumbnail',
+            ],
+        ];
+    }
+}
+```
+
+If you want to perform some custom actions on your image after saving or deleting it :
+
+```php
+namespace App\Models;
+
+use Backpack\CRUD\CrudTrait;
+use Illuminate\Database\Eloquent\Model;
+use Novius\Backpack\CRUD\ModelTraits\UploadableImage;
+
+class Example extends Model
+{
+    use CrudTrait;
+    use UploadableImage {
+        imagePathSaved as imagePathSavedNative;
+        imagePathDeleted as imagePathDeletedNative;
+    }
+
+    protected $fillable = ['title', 'image', 'thumbnail'];
+
+    public function uploadableImages()
+    {
+        return [
+            [
+                'name' => 'image', // The attribute name where to store the image path
+                'slug' => 'title', // The attribute name from which to generate the image file name (optionnal)
             ],
             [
                 'name' => 'thumbnail',
@@ -269,70 +305,48 @@ class Article extends \Backpack\NewsCRUD\app\Models\Article
     }
 
     /**
-     * You might like to perform some custom actions on your image after saving it.
+     * Callback triggered after image saved on disk
      */
     public function imagePathSaved(string $imagePath, string $imageAttributeName = null, string $diskName = null)
     {
-        //perfoms some custom actions here
-        $this->addMedia($imagePath)
-            ->preservingOriginal()
-            ->toMediaCollection();
+        if (!$this->imagePathSavedNative()) {
+            return false;
+        }
+
+        // Do what you want here
 
         return true;
     }
 
     /**
-     * You might like to perform some custom actions after deleting the image.
+     * Callback triggered after image deleted on disk
      */
     public function imagePathDeleted(string $imagePath, string $imageAttributeName = null, string $diskName = null)
     {
-        $this->clearMediaCollection();
+        if (!$this->imagePathDeletedNative()) {
+            return false;
+        }
+        
+        // Do what you want here
 
         return true;
     }
 }
-
-
 ```
 
-If you like to use imagePathSaved and the medialibrary of Spatie, you will need :
+#### MediaLibrary
 
-1. Override this method and adds whatever actions you prefer.
-2. The configuration file _medialibrary.php_ should define an existing file system and image driver:
-```
-'defaultFilesystem' => 'public',
-'image_driver' => 'imagick',
-```
-3. Your _composer.json_ should include:
-```
-"spatie/laravel-medialibrary": "your.version.here"
-```
+If you want to store the images in the [MediaLibrary](https://github.com/spatie/laravel-medialibrary) provided by Spatie, use the trait `SpatieMediaLibrary\UploadableImage` instead of `UploadableImage`.
+
+For example with the MediaLibrary you can easily manage conversions (crop, resize, ...).
+
+#### Translations
+
+Both traits `UploadableImage` and `SpatieMediaLibrary\UploadableImage` are compatible with the [translation package](https://github.com/spatie/laravel-translatable) provided by Spatie.
+
+In the case of translatable images with `SpatieMediaLibrary\UploadableImage`, the name of the collection where the image is stored is composed of the name of the attribute and the locale, separated by a dash (eg. `image-en`, `image-fr`, ...).
+
 ___  
-  
-
-```php
-// ArticleCrudController
-
-$this->crud->addField([ 
-    'label' => 'Image',
-    'name' => 'image',
-    'type' => 'image',
-    'upload' => true,
-    'crop' => true, // set to true to allow cropping, false to disable
-    'aspect_ratio' => 0, // ommit or set to 0 to allow any aspect ratio
-    'prefix' => '/storage/',
-]);
-
-$this->crud->addField([
-    'label' => 'Image',
-    'name' => 'thumbnail',
-    'type' => 'image',
-    'upload' => true,
-    'crop' => true, // set to true to allow cropping, false to disable
-    'aspect_ratio' => 0, // ommit or set to 0 to allow any aspect ratio
-    'prefix' => '/storage/',
-]);
-```
 
 
 ### CRUD : custom routes
