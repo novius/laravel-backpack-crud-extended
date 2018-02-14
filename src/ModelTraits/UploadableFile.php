@@ -41,7 +41,7 @@ trait UploadableFile
             //
             $this->setTranslation($fileAttributeName, (string) request('locale', $this->getLocale()), $path); // Default value is relevant when using seeders or any environment where we dont have acces to "request".
         } else {
-            $this->{$fileAttributeName} = $path;
+            $this->setAttribute($fileAttributeName, $path);
         }
     }
 

@@ -41,7 +41,7 @@ trait UploadableImage
         if ($this->isTranslatableImageAttribute($imageAttributeName)) {
             $this->setTranslation($imageAttributeName, $this->getLocale(), $uniquePath);
         } else {
-            $this->{$imageAttributeName} = $uniquePath;
+            $this->setAttribute($imageAttributeName, $uniquePath);
         }
     }
 

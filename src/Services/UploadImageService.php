@@ -94,7 +94,7 @@ class UploadImageService extends AbstractUploadService
         // 1. Generate a filename.
         $filename = md5(time()).$extension;
         if (!empty($imageSlugAttribute)) {
-            $filename = str_slug($this->model->{$imageSlugAttribute}).$extension;
+            $filename = str_slug($this->model->getAttribute($imageSlugAttribute)).$extension;
         }
 
         return $destination_path.'/'.$filename;
@@ -110,7 +110,7 @@ class UploadImageService extends AbstractUploadService
     {
         $this->initModel($model);
         foreach ($this->filesAttributes($this->model->uploadableImages()) as $imageAttribute) {
-            $this->deleteImage($imageAttribute, $this->model->{$imageAttribute});
+            $this->deleteImage($imageAttribute, $this->model->getAttribute($imageAttribute));
         }
 
         return true;
@@ -213,7 +213,7 @@ class UploadImageService extends AbstractUploadService
                 $originalValue = array_get($originalValue, $locale, null);
             }
         } else {
-            $value = $this->model->{$imageAttributeName};
+            $value = $this->model->getAttribute($imageAttributeName);
             $originalValue = $this->model->getOriginal($imageAttributeName);
         }
 
