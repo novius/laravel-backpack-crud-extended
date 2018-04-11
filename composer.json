@@ -25,7 +25,8 @@
     ],
     "require": {
         "php": ">=7.1",
-        "backpack/crud": "~3.3.0"
+        "backpack/crud": "~3.3.0",
+        "laravelcollective/html": "^5.5.0"
     },
     "require-dev": {
         "friendsofphp/php-cs-fixer": "~2.8.0",
