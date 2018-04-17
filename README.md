@@ -334,11 +334,44 @@ class Example extends Model
 }
 ```
 
-#### MediaLibrary
+#### MediaLibrary (7.*)
 
-If you want to store the images in the [MediaLibrary](https://github.com/spatie/laravel-medialibrary) provided by Spatie, use the trait `SpatieMediaLibrary\UploadableImage` instead of `UploadableImage`.
+With the [MediaLibrary](https://github.com/spatie/laravel-medialibrary) provided by Spatie you can easily manage conversions (crop, resize, ...).
 
-For example with the MediaLibrary you can easily manage conversions (crop, resize, ...).
+To store the images in the MediaLibrary, you just have to implement the following traits on your model :
+* `SpatieMediaLibrary\UploadableImage` instead of `UploadableImage`
+* `SpatieMediaLibrary\HasMediaTrait` instead of the one provided by the MediaLibrary.
+
+Here is an example on how to configure and use crop and fit max conversions on your model :
+```php
+    protected $mediaConversionsCrop = [
+          'background' => [
+                'large' => [1440, 810],
+                'medium' => [1080, 608],
+                'small' => [768, 432],
+          ],
+    ];
+
+    protected $mediaConversionsFitMax = [
+          'background' => [
+                'large' => [877, 900],
+                'medium' => [670, 687],
+                'small' => [580, 594],
+          ],
+    ];
+
+    public function backgroundFullCropUrl()
+    {
+        return $this->getAttributeMediaCropUrl('background', 'large', true);
+    }
+
+    public function backgroundFullFitMaxUrl()
+    {
+        return $this->getAttributeMediaFitMaxUrl('background', 'large', true);
+    }
+```
+
+Check the documentation of the [MediaLibrary](https://github.com/spatie/laravel-medialibrary) to go further.
 
 #### Translations
 

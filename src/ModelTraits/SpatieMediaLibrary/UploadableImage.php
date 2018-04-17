@@ -8,7 +8,7 @@ use Novius\Backpack\CRUD\ModelTraits\UploadableImage as UploadableImageOriginal;
  * Trait UploadableImage
  *
  * To make media upload work :
- * - implement the trait Spatie\MediaLibrary\HasMedia\HasMediaTrait on your model
+ * - implement the trait Novius\Backpack\CRUD\ModelTraits\SpatieMediaLibrary\HasMediaTrait on your model
  * - call $this->setUploadedImage($value) in your model attribute mutator
  *
  * @package Novius\Backpack\CRUD\ModelTraits\SpatieMediaLibrary
