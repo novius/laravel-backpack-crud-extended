@@ -18,32 +18,6 @@ trait HasMediaTrait
     use HasMediaTraitNative;
 
     /**
-     * The crop conversions
-     *
-     * @var array
-     */
-//    protected $mediaConversionsCrop = [
-//         'picture' => [ // The attribute name
-//             'full' => [1440, 810], // An example of conversion
-//             'medium' => [1080, 608], // Another example of conversion
-//             'small' => [768, 432], // A third example of conversion
-//         ]
-//    ];
-
-    /**
-     * The fit max conversions
-     *
-     * @var array
-     */
-//    protected $mediaConversionsFitMax = [
-//         'picture' => [ // The attribute name
-//             'full' => [877, 900], // An example of conversion
-//             'medium' => [670, 687], // Another example of conversion
-//             'small' => [580, 594], // A third example of conversion
-//         ],
-//    ];
-
-    /**
      * Gets the attribute media URL with a fallback on the media stored on disk.
      *
      * @param string $attributeName
