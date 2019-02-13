@@ -125,6 +125,9 @@ class UploadImageService extends AbstractUploadService
      */
     protected function deleteImage(string $imageAttributeName, string $imageRelativePath): bool
     {
+        // remove timestamp param from url
+        $imageRelativePath = strtok($imageRelativePath, '?');
+
         // Delete image on disk
         \Storage::disk(self::STORAGE_DISK_NAME)->delete($imageRelativePath);
 
