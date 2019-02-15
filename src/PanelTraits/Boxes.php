@@ -98,6 +98,7 @@ trait Boxes
         $boxOptions = [
             'side' => false,
             'class' => '',
+            'bodyClass' => '',
             'collapsed' => false,
         ];
 
