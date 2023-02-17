@@ -110,7 +110,13 @@ class UploadImageService extends AbstractUploadService
     {
         $this->initModel($model);
         foreach ($this->filesAttributes($this->model->uploadableImages()) as $imageAttribute) {
-            $this->deleteImage($imageAttribute, $this->model->getAttribute($imageAttribute));
+            $imageRelativePath = $this->model->getAttribute($imageAttribute);
+            if (
+                !empty($imageRelativePath) &&
+                \Storage::disk(self::STORAGE_DISK_NAME)->exists($imageRelativePath)
+            ) {
+                $this->deleteImage($imageAttribute, $this->model->getAttribute($imageAttribute));
+            }
         }
 
         return true;
